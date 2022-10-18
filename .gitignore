@@ -131,6 +131,3 @@ cython_debug/
 
 # OS Stuff
 .DS_store
-
-# Versioning
-juharmonize/_version.py
