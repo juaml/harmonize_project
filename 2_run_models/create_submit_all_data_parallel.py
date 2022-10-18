@@ -71,7 +71,7 @@ with open('all_data_parallel.submit', 'w') as f:
         t_save_dir.mkdir(exist_ok=True, parents=True)
         for t_mode in harmonize_modes:
             for i_fold in range(n_splits):
-                f.write(f'save_dir={t_save_dir.as_posix()}\n')
+                f.write(f'exp_name={exp_name}\n')
                 f.write(f'args={args}\n')
                 f.write(f'harmonize_mode={t_mode}\n')
                 f.write(f'fold={i_fold}\n')
