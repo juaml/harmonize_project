@@ -27,11 +27,13 @@ n_splits = 10
 exec_name = (
     'test_all_data_parallel.py '
     f'--data_dir {data_dir} '
-    '--save_dir $(save_dir) '
+    f'--save_dir {save_dir.as_posix()}/$(exp_name) '
     '--n_splits $(n_splits) '
     '--fold $(fold) '
     '--harmonize_mode $(harmonize_mode) '
 )
+
+log_suffix = "juharmonize_$(exp_name)_$(harmonize_mode)_$(fold).log"
 
 preamble = f"""
 # The environment
@@ -51,9 +53,9 @@ transfer_executable = False
 arguments      = {env} python {exec_name} $(args)
 
 # Logs
-log            = {log_dir.as_posix()}/predict_$(target)_$(model).log
-output         = {log_dir.as_posix()}/predict_$(target)_$(model).out
-error          = {log_dir.as_posix()}/predict_$(target)_$(model).err
+log            = {log_dir.as_posix()}/{log_suffix}
+output         = {log_dir.as_posix()}{log_suffix}
+error          = {log_dir.as_posix()}/{log_suffix}
 
 queue
 """
