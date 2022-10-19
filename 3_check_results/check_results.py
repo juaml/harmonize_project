@@ -27,7 +27,8 @@ for experiment, scoring in experiments_to_check.items():
                 lambda x: scoring(x.y_true, x.y_pred)).groupby(
                     'harmonize_mode').agg(mean=np.mean, count=len)
     else:
-        pass
+        summary_df = results_df.groupby(
+            ['harmonize_mode']).apply(lambda x: scoring(x.y_true, x.y_pred))
 
     print(f"Experiment: {experiment}")
     print(summary_df)

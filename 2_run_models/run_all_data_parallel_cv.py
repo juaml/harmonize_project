@@ -18,7 +18,7 @@ sys.path.append(to_append)
 from lib.harmonize import eval_harmonizer, train_harmonizer  # noqa
 from lib import io  # noqa
 from lib import ml  # noqa
-from lib.logging import logger, configure_logging
+from lib.logging import logger, configure_logging  # noqa
 # Running Parameters
 
 configure_logging()

@@ -1,5 +1,3 @@
-
-
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -81,11 +79,14 @@ def unify_sites(sites, unify_sites_names):
 
 
 def set_argparse_params(parser, use_oos=False):
-    parser.add_argument("--data_dir", type=str, default="",
-                        help="Data store path")
     parser.add_argument(
-        "--n_high_var_feats", type=int, default=100,
-        help="High variance features"
+        "--data_dir", type=str, default="", help="Data store path"
+    )
+    parser.add_argument(
+        "--n_high_var_feats",
+        type=int,
+        default=100,
+        help="High variance features",
     )
     parser.add_argument(
         "--unify_sites",
@@ -121,7 +122,7 @@ def try_read_sql_csv(path):
     if path.exists():
         try:
             logger.info(f"Reading sqlite file {path.as_posix()}")
-            con = create_engine(f'sqlite:///{path.as_posix()}')
+            con = create_engine(f"sqlite:///{path.as_posix()}")
             df = pd.read_sql_table(path.stem, con=con)
             logger.info("Reading done")
         except Exception as e:
@@ -137,58 +138,38 @@ def try_read_sql_csv(path):
 
     return df
 
-def get_site_data(data_dir,site):
+
+def get_site_data(data_dir, site):
     # Load each individual site
-    file_name = "X_"+site+".csv"
+    file_name = f"X_{site}.csv"
     X_site = pd.read_csv(data_dir / "final_data_split" / file_name, header=0)
     X_site.reset_index(inplace=True)
-    file_name = "Y_"+site+".csv"
+    file_name = f"Y_{site}.csv"
     Y_site = pd.read_csv(data_dir / "final_data_split" / file_name, header=0)
     Y_site.reset_index(inplace=True)
 
     return X_site, Y_site
 
 
-
-def load_sites_data(data_dir,sites):
+def load_sites_data(data_dir, sites):
     # Concatenate all used sites
-    for i_site, site in enumerate(sites):
-        X_site, Y_site = get_site_data(data_dir,site)
-        if i_site == 0:
-            X_df = X_site
-            Y_df = Y_site
-        else:
-            X_df = pd.concat([X_df, X_site], axis=0)
-            Y_df = pd.concat([Y_df, Y_site], axis=0)
+    all_sites_df_X = []
+    all_sites_df_Y = []
+    logger.info("Loading sites data")
+    for site in sites:
+        logger.info(f"\t Reading {site}")
+        X_site, Y_site = get_site_data(data_dir, site)
+        all_sites_df_X.append(X_site)
+        all_sites_df_Y.append(Y_site)
+
+    X_df = pd.concat(all_sites_df_X, axis=0)
+    Y_df = pd.concat(all_sites_df_Y, axis=0)
     return X_df, Y_df
 
 
-def get_MRI_data(params, problem_type, use_oos=False):
-
-    data_dir = Path(params.data_dir)
-    logger.info(f"Loading data from {data_dir.as_posix()}")
-    unify_sites_names = params.unify_sites
-    n_high_var_feats = params.n_high_var_feats
-    sites_use = params.sites_use
-
-    sites_oos = None
-    if use_oos is True:
-        sites_oos = params.sites_oos
-        logger.info(f"Sites OOS: {sites_oos}")
-        if sites_oos is None:
-            raise ValueError("Out of sample sites not specified")
-    random_sites = params.random_sites
-    covars = params.covars
-
-    logger.info("Reading X...")
-    X_fname = data_dir / "final_data" / "X_final.sqlite"
-    X_df = try_read_sql_csv(X_fname)
-    logger.info("Reading X done")
-    logger.info("Reading Y...")
-    Y_fname = data_dir / "final_data" / "Y_final.sqlite"
-    Y_df = try_read_sql_csv(Y_fname)
-    logger.info("Reading Y done")
-
+def postprocess_data(
+    X_df, Y_df, problem_type, unify_sites_names, n_high_var_feats, idxvar=None
+):
     # ############## Format data
     # Unify sites names
     sites = Y_df["site"]
@@ -197,9 +178,6 @@ def get_MRI_data(params, problem_type, use_oos=False):
 
     # put variables in the right format
     sites = np.array(sites)
-
-    if sites_use == "all":
-        sites_use = np.unique(sites)
 
     # TODO: Filter sites by size range
     # TODO: subsample site to the smallests
@@ -236,32 +214,59 @@ def get_MRI_data(params, problem_type, use_oos=False):
     assert not np.any(np.isnan(X))
     assert not np.any(np.isinf(X))
 
-    # Keep originals
-    Xorig = np.copy(X)
-    yorig = np.copy(y)
-    sitesorig = np.copy(sites)
-
-    logger.info(f"Using sites: {sites_use}")
-    # Select data form used sites
-    idx = np.zeros(len(sites))
-    for su in sites_use:
-        idx = np.logical_or(idx, sites == su)
-    idx = np.where(idx)
-
-    X = X[idx]
-    y = y[idx]
-    sites = sites[idx]
-
     # harmonization fails with low variance features
-    colvar = np.var(X, axis=0)
-    idxvar = np.argsort(-colvar)
-    idxvar = idxvar[range(0, n_high_var_feats)]
+    if idxvar is None:
+        colvar = np.var(X, axis=0)
+        idxvar = np.argsort(-colvar)
+        idxvar = idxvar[range(0, n_high_var_feats)]
     X = X[:, idxvar]
 
+    return X, y, sites, idxvar
+
+
+def get_MRI_data(params, problem_type, use_oos=False):
+
+    data_dir = Path(params.data_dir)
+    logger.info(f"Loading data from {data_dir.as_posix()}")
+    unify_sites_names = params.unify_sites
+    n_high_var_feats = params.n_high_var_feats
+    sites_use = params.sites_use
+
+    if sites_use == "all":
+        sites_use = [
+            "1000Gehirne",
+            "CamCAN",
+            "CoRR",
+            "HCP",
+            "IXI",
+            "OASIS3",
+            "ID1000",
+            "PIOP1",
+            "PIOP2",
+            "eNKI",
+        ]
+
+    sites_oos = None
+    if use_oos is True:
+        sites_oos = params.sites_oos
+        logger.info(f"Sites OOS: {sites_oos}")
+        if sites_oos is None:
+            raise ValueError("Out of sample sites not specified")
+    random_sites = params.random_sites
+    covars = params.covars
+
+    X_df, Y_df = load_sites_data(data_dir, sites_use)
+
+    X, y, sites, idxvar = postprocess_data(
+        X_df,
+        Y_df,
+        problem_type,
+        unify_sites_names,
+        n_high_var_feats,
+        idxvar=None,
+    )
+
     logger.info("========= DATA INFO =========")
-    logger.info(f" ORIG X SHAPE {Xorig.shape}")
-    logger.info(f" ORIG Y SHAPE {yorig.shape}")
-    logger.info(f" ORIG SITE SHAPE {sitesorig.shape}")
     logger.info(f" X SHAPE {X.shape}")
     logger.info(f" Y SHAPE {y.shape}")
     logger.info(f" SITE SHAPE {sites.shape}")
@@ -302,18 +307,16 @@ def get_MRI_data(params, problem_type, use_oos=False):
 
     if sites_oos is not None:
         logger.info(f"Setting OOS sites {sites_oos}")
-        # Out of Samples set up
-        Xoos = None
-        yoos = None
-        logger.info(f"OOS sites: {sites_oos}")
-        idx = np.zeros(len(sitesorig))
-        for su in sites_oos:
-            idx = np.logical_or(idx, sitesorig == su)
-        idx = np.where(idx)
-        Xoos = Xorig[idx]
-        Xoos = Xoos[:, idxvar]
-        yoos = yorig[idx]
-        sitesoos = sitesorig[idx]
+        Xoos, yoos = load_sites_data(data_dir, sites_oos)
+
+        Xoos, yoos, sitesoos, idxvar = postprocess_data(
+            Xoos,
+            yoos,
+            problem_type,
+            unify_sites_names,
+            n_high_var_feats,
+            idxvar=idxvar,
+        )
         covarsoos = None
         out = X, y, sites, covars, Xoos, yoos, sitesoos, covarsoos
     else:
