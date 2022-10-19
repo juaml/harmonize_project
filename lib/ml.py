@@ -58,7 +58,6 @@ def get_models(params, problem_type):
             f"Must be one of {_valid_models[problem_type]}")
     # #### Clasiffiers parameters
     if problem_type == "binary_classification":
-        
         if pred_model == "gssvm":
             params_svm = {
                 "kernel": ("linear", "rbf"),

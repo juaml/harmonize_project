@@ -152,7 +152,7 @@ def eval_harmonizer(harm, X, y, sites, covars=None):
         out = harm['pred_model'].predict(X)
     elif harm['harm_type'] in ['pretend', 'pretend_nosite']:
         out = harm['pred_model'].predict(X, sites, covars)
-    elif harm['harm_type'] in ['predict_predict', 'predict_predict_nosie']:
+    elif harm['harm_type'] in ['predict_pretend', 'predict_pretend_nosite']:
         X = harm['harm_model'].transform(X)
         out = harm['pred_model'].predict(X, sites, covars)
     else:

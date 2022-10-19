@@ -79,6 +79,8 @@ save_dir = Path(params.save_dir)
 
 save_dir.mkdir(exist_ok=True, parents=True)
 
+logger.info(f"Saving results in {save_dir.as_posix()}")
+
 # General
 n_splits = params.n_splits
 random_state = params.random_state
@@ -112,6 +114,7 @@ if problem_type == "regression":
 data = io.get_MRI_data(params, problem_type, use_oos=False)
 X, y, sites, covars = data  # type: ignore
 
+cheat = False
 if harmonize_mode == "cheat":
     logger.info("Cheat mode")
     cheat_model = JuHarmonize()
@@ -123,6 +126,7 @@ if harmonize_mode == "cheat":
         f"Variance decreased for {new_var} features of {X.shape[1]}"
     )
     harmonize_mode = "none"
+    cheat = True
 
 for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
     if fold_to_do >= 0 and i_fold != fold_to_do:
@@ -144,7 +148,7 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
         covars_train,
         pred_model,
         stack_model=stack_model,
-        random_state=None,
+        random_state=42,
         n_splits=10,
         regression_params=regression_params
     )
@@ -152,6 +156,9 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
     out_fold, acc_fold = eval_harmonizer(
         harm_model, X_test, y_test, sites_test, covars_test
     )
+
+    if cheat is True:
+        harmonize_mode = "cheat"
 
     logger.info("================================")
     logger.info(f"\tFOLD {i_fold} - SCORE: {acc_fold}")
@@ -161,4 +168,6 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
     to_save = pd.DataFrame({"y_true": y_test, "y_pred": out_fold})
     to_save['harmonize_mode'] = harmonize_mode
     to_save['fold'] = i_fold
-    to_save.to_csv(save_dir / out_fname, sep=';')
+    out_path = save_dir / out_fname
+    logger.info(f"Saving dataframe in {out_path.as_posix()}")
+    to_save.to_csv(out_path, sep=';')
