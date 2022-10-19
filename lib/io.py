@@ -1,10 +1,15 @@
-#%%
+
+
 import numpy as np
 import pandas as pd
-#from lib.utils import  show_hist
+from pathlib import Path
+
+from .utils import show_hist
+from .logging import logger
+
 
 def unify_sites(sites, unify_sites_names):
-
+    logger.info(f"Unifying sites {unify_sites_names}")
     # make all names uppercase
     unify_sites_names = [element.upper() for element in unify_sites_names]
 
@@ -69,15 +74,69 @@ def unify_sites(sites, unify_sites_names):
         for site_CoRR in sites_use_CoRR:
             sites.replace(to_replace={site_CoRR: "CoRR"}, inplace=True)
 
+    logger.info("Sites unified")
     return sites
 
 
-def get_MRI_data(data_dir, unify_sites_names,problem_type, n_high_var_feats, sites_use, sites_oos, random_sites, covars):
+def set_argparse_params(parser, use_oos=False):
+    parser.add_argument("--data_dir", type=str, default="",
+                        help="Data store path")
+    parser.add_argument(
+        "--n_high_var_feats", type=int, default=100,
+        help="High variance features"
+    )
+    parser.add_argument(
+        "--unify_sites",
+        nargs="+",
+        type=str,
+        default=["IXI", "CORR", "AOMIC"],
+        help="Sites to unify",
+    )
+    parser.add_argument(
+        "--sites_use", nargs="+", type=str, default=["all"], help="Used sites"
+    )
 
+    parser.add_argument(
+        "--sites_oos",
+        nargs="+",
+        type=str,
+        required=True,
+        help="Out of sample sites",
+    )
+    parser.add_argument(
+        "--covars", type=str, default=None, help="If randomized sites"
+    )
+    parser.add_argument(
+        "--random_sites", type=bool, default=False, help="If randomized sites"
+    )
+    return parser
+
+
+def get_MRI_data(params, problem_type, use_oos=False):
+
+    data_dir = Path(params.data_dir)
+    logger.info(f"Loading data from {data_dir.as_posix()}")
+    unify_sites_names = params.unify_sites
+    n_high_var_feats = params.n_high_var_feats
+    sites_use = params.sites_use
+
+    sites_oos = None
+    if use_oos is True:
+        sites_oos = params.sites_oos
+        logger.info(f"Sites OOS: {sites_oos}")
+        if sites_oos is None:
+            raise ValueError("Out of sample sites not specified")
+    random_sites = params.random_sites
+    covars = params.covars
+
+    logger.info("Reading X...")
     X_df = pd.read_csv(data_dir / "final_data" / "X_final.csv", header=0)
     X_df.reset_index(inplace=True)
+    logger.info("Reading X done")
+    logger.info("Reading Y...")
     Y_df = pd.read_csv(data_dir / "final_data" / "Y_final.csv", header=0)
-    Y_df.reset_index(inplace=True)
+    Y_df.reset_index(inplace=True
+    logger.info("Reading Y done"))
 
     # ############## Format data
     # Unify sites names
@@ -98,11 +157,13 @@ def get_MRI_data(data_dir, unify_sites_names,problem_type, n_high_var_feats, sit
 
     # Set y
     if problem_type == "binary_classification":
+        logger.info("Converting 'gender' to binary classification")
         female = Y_df["gender"]
         female.replace(to_replace={"F": 1, "M": 0}, inplace=True)
         female = np.array(female)
         y = female
     else:
+        logger.info("Rounding up age")
         age = np.round(Y_df["age"].to_numpy())
         y = age
 
@@ -110,7 +171,8 @@ def get_MRI_data(data_dir, unify_sites_names,problem_type, n_high_var_feats, sit
     if len(np.unique(y)) == 2:
         if problem_type != "binary_classification":
             raise ValueError(
-                "The target has only 2 classes, please use binary_classification"
+                "The target has only 2 classes, please use "
+                "binary_classification"
             )
     elif problem_type != "regression":
         raise ValueError(
@@ -128,7 +190,7 @@ def get_MRI_data(data_dir, unify_sites_names,problem_type, n_high_var_feats, sit
     yorig = np.copy(y)
     sitesorig = np.copy(sites)
 
-    print(f"Using sites: {sites_use}")
+    logger.info(f"Using sites: {sites_use}")
     # Select data form used sites
     idx = np.zeros(len(sites))
     for su in sites_use:
@@ -145,42 +207,40 @@ def get_MRI_data(data_dir, unify_sites_names,problem_type, n_high_var_feats, sit
     idxvar = idxvar[range(0, n_high_var_feats)]
     X = X[:, idxvar]
 
-    print("========= DATA INFO =========")
-    print(f" ORIG X SHAPE {Xorig.shape}")
-    print(f" ORIG Y SHAPE {yorig.shape}")
-    print(f" ORIG SITE SHAPE {sitesorig.shape}")
-    print(f" X SHAPE {X.shape}")
-    print(f" Y SHAPE {y.shape}")
-    print(f" SITE SHAPE {sites.shape}")
-    print("=============================")
+    logger.info("========= DATA INFO =========")
+    logger.info(f" ORIG X SHAPE {Xorig.shape}")
+    logger.info(f" ORIG Y SHAPE {yorig.shape}")
+    logger.info(f" ORIG SITE SHAPE {sitesorig.shape}")
+    logger.info(f" X SHAPE {X.shape}")
+    logger.info(f" Y SHAPE {y.shape}")
+    logger.info(f" SITE SHAPE {sites.shape}")
+    logger.info("=============================")
 
     usites, csites = np.unique(sites, return_counts=True)
-    print("Sites:")
+    logger.info("Sites:")
 
     # Check that at least 2 sites are used
     assert len(usites) > 1
-    print(np.asarray((usites, csites)))
-    print(f"Data shape: {X.shape}")
-    print(f"{len(sites_use)} sites:")
+    logger.info(np.asarray((usites, csites)))
+    logger.info(f"Data shape: {X.shape}")
+    logger.info(f"{len(sites_use)} sites:")
     sites_use, sites_count = np.unique(sites, return_counts=True)
     assert len(sites_use) > 1
-    print(np.asarray((sites_use, sites_count)))
+    logger.info(np.asarray((sites_use, sites_count)))
 
     if problem_type == "binary_classification":
-        print("Label counts:")
+        logger.info("Label counts:")
         uy, cy = np.unique(y, return_counts=True)
-        print(np.asarray((uy, cy)))
+        logger.info(np.asarray((uy, cy)))
 
-   #show_hist(y, "y")
+    show_hist(y, "y")
     if len(sites_use) <= 3:
         for i in range(len(sites_use)):
             ii = sites == sites_use[i]
-         #   show_hist(y[ii], f"y: {sites_use[i]} #{np.sum(ii)}")
-
-
+            show_hist(y[ii], f"y: {sites_use[i]} #{np.sum(ii)}")
 
     if random_sites:
-        print("\n*** SHUFFLING SITES ***\n")
+        logger.info("\n*** SHUFFLING SITES ***\n")
         np.random.shuffle(sites)
         # induce site difference
         for ii, ss in enumerate(sites):
@@ -189,11 +249,12 @@ def get_MRI_data(data_dir, unify_sites_names,problem_type, n_high_var_feats, sit
             else:
                 X[ii] -= np.random.normal(-1.0, 1.0)
 
-    # Out of Samples set up
-    Xoos = None
-    yoos = None
     if sites_oos is not None:
-        print(f"OOS sites: {sites_oos}")
+        logger.info(f"Setting OOS sites {sites_oos}")
+        # Out of Samples set up
+        Xoos = None
+        yoos = None
+        logger.info(f"OOS sites: {sites_oos}")
         idx = np.zeros(len(sitesorig))
         for su in sites_oos:
             idx = np.logical_or(idx, sitesorig == su)
@@ -202,7 +263,9 @@ def get_MRI_data(data_dir, unify_sites_names,problem_type, n_high_var_feats, sit
         Xoos = Xoos[:, idxvar]
         yoos = yorig[idx]
         sitesoos = sitesorig[idx]
-        covarsoos = None 
-        return X, y, sites, covars, Xoos, yoos, sitesoos, covarsoos
+        covarsoos = None
+        out = X, y, sites, covars, Xoos, yoos, sitesoos, covarsoos
     else:
-     return X, y, sites, covars
+        out = X, y, sites, covars
+    logger.info("Data reading done!")
+    return out

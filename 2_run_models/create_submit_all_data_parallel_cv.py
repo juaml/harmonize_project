@@ -14,7 +14,6 @@ save_dir = Path('/data/project/harmonize/results/')
 experiments = {
     'test_HCP_IXI_oosENKI': {
         'sites_use': 'HCP IXI',
-        'sites_oos': 'ENKI',
         'problem_type': 'binary_classification',
         'n_high_var_feats': 10
     }
@@ -65,7 +64,8 @@ with open('all_data_parallel.submit', 'w') as f:
     f.writelines(preamble)
     for exp_name, exp_config in experiments.items():
         args = ' '.join(
-            f'--{arg_name} {arg_val}' for arg_name, arg_val in exp_config.items())
+            f'--{arg_name} {arg_val}'
+            for arg_name, arg_val in exp_config.items())
 
         t_log_dir = log_dir / f"juharmonize_{exp_name}"
         t_log_dir.mkdir(exist_ok=True, parents=True)
