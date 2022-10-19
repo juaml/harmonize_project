@@ -137,6 +137,31 @@ def try_read_sql_csv(path):
 
     return df
 
+def get_site_data(data_dir,site):
+    # Load each individual site
+    file_name = "X_"+site+".csv"
+    X_site = pd.read_csv(data_dir / "final_data_split" / file_name, header=0)
+    X_site.reset_index(inplace=True)
+    file_name = "Y_"+site+".csv"
+    Y_site = pd.read_csv(data_dir / "final_data_split" / file_name, header=0)
+    Y_site.reset_index(inplace=True)
+
+    return X_site, Y_site
+
+
+
+def load_sites_data(data_dir,sites):
+    # Concatenate all used sites
+    for i_site, site in enumerate(sites):
+        X_site, Y_site = get_site_data(data_dir,site)
+        if i_site == 0:
+            X_df = X_site
+            Y_df = Y_site
+        else:
+            X_df = pd.concat([X_df, X_site], axis=0)
+            Y_df = pd.concat([Y_df, Y_site], axis=0)
+    return X_df, Y_df
+
 
 def get_MRI_data(params, problem_type, use_oos=False):
 
