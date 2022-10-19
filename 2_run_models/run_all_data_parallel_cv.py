@@ -21,7 +21,7 @@ from lib import ml  # noqa
 from lib.logging import logger, configure_logging
 # Running Parameters
 
-configure_logging("INFO")
+configure_logging()
 
 # parse parameters
 parser = argparse.ArgumentParser(description="Attributes")
@@ -77,6 +77,8 @@ params = parser.parse_args()
 # Paths
 save_dir = Path(params.save_dir)
 
+save_dir.mkdir(exist_ok=True, parents=True)
+
 # General
 n_splits = params.n_splits
 random_state = params.random_state
@@ -88,10 +90,6 @@ fold_to_do = params.fold
 harm_n_splits = params.harm_n_splits
 harmonize_mode = params.harmonize_mode
 
-
-# ######################## Data loading and preprocessing
-data = io.get_MRI_data(params, problem_type, use_oos=False)
-X, y, sites, covars = data  # type: ignore
 
 # ######################## Models Set ups
 
@@ -108,6 +106,11 @@ if problem_type == "regression":
         "regression_search_tol": params.regression_search_tol,
         "regression_search": params.regression_search,
     }
+
+
+# ######################## Data loading and preprocessing
+data = io.get_MRI_data(params, problem_type, use_oos=False)
+X, y, sites, covars = data  # type: ignore
 
 if harmonize_mode == "cheat":
     logger.info("Cheat mode")

@@ -12,9 +12,10 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC, SVR
 from skrvm import RVR, RVC
 
+from .utils import logger
 
 _valid_models = {
-    "binary_classification": ["gssvm", "rvc"],
+    "binary_classification": ["gssvm", "rvc", "svm"],
     "regression": ["gsgpr", "gssvm", "ridgecv", "rvr"],
 }
 
@@ -44,19 +45,30 @@ def set_argparse_params(parser):
 def get_models(params, problem_type):
     pred_model = params.pred_model
     stack_model = params.stack_model
+    logger.info("Setting up models")
+    logger.info(f"\tPrediction model: {pred_model}")
+    logger.info(f"\tStack model: {stack_model}")
     pca = params.pca
     scaler = params.scaler
+    logger.info(f"\tPCA: {pca}")
+    logger.info(f"\tScaler: {scaler}")
+    if pred_model not in _valid_models[problem_type]:
+        raise ValueError(
+            f"Invalid prediction model ({pred_model}). "
+            f"Must be one of {_valid_models[problem_type]}")
     # #### Clasiffiers parameters
     if problem_type == "binary_classification":
+        
         if pred_model == "gssvm":
             params_svm = {
                 "kernel": ("linear", "rbf"),
                 "C": [0.01, 0.1, 1, 10, 100],
             }
             pred_model = GridSearchCV(SVC(probability=True), params_svm)
+        elif pred_model == "svm":
+            pred_model = SVC(probability=True, kernel="linear")
         elif pred_model == "rvc":
             pred_model = RVC(kernel="poly", degree=1)
-
     else:
         # ['gsgpr', 'gssvm', 'ridgecv', 'rvr'],
         if pred_model == "gssvm":

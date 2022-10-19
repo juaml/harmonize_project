@@ -3,6 +3,8 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from sqlalchemy import create_engine
+
 
 from .utils import show_hist
 from .logging import logger
@@ -96,13 +98,14 @@ def set_argparse_params(parser, use_oos=False):
         "--sites_use", nargs="+", type=str, default=["all"], help="Used sites"
     )
 
-    parser.add_argument(
-        "--sites_oos",
-        nargs="+",
-        type=str,
-        required=True,
-        help="Out of sample sites",
-    )
+    if use_oos is True:
+        parser.add_argument(
+            "--sites_oos",
+            nargs="+",
+            type=str,
+            required=True,
+            help="Out of sample sites",
+        )
     parser.add_argument(
         "--covars", type=str, default=None, help="If randomized sites"
     )
@@ -110,6 +113,29 @@ def set_argparse_params(parser, use_oos=False):
         "--random_sites", type=bool, default=False, help="If randomized sites"
     )
     return parser
+
+
+def try_read_sql_csv(path):
+    failed = False
+    df = None
+    if path.exists():
+        try:
+            logger.info(f"Reading sqlite file {path.as_posix()}")
+            con = create_engine(f'sqlite:///{path.as_posix()}')
+            df = pd.read_sql_table(path.stem, con=con)
+            logger.info("Reading done")
+        except Exception as e:
+            logger.info(f"Reading failed: {e}")
+            failed = True
+
+    if not path.exists() or failed is True:
+        t_name = path.with_suffix(".csv")
+        logger.info(f"Reading: {t_name.as_posix()}")
+        df = pd.read_csv(t_name, header=0)
+        df.reset_index(inplace=True)
+        logger.info("Reading done")
+
+    return df
 
 
 def get_MRI_data(params, problem_type, use_oos=False):
@@ -130,13 +156,13 @@ def get_MRI_data(params, problem_type, use_oos=False):
     covars = params.covars
 
     logger.info("Reading X...")
-    X_df = pd.read_csv(data_dir / "final_data" / "X_final.csv", header=0)
-    X_df.reset_index(inplace=True)
+    X_fname = data_dir / "final_data" / "X_final.sqlite"
+    X_df = try_read_sql_csv(X_fname)
     logger.info("Reading X done")
     logger.info("Reading Y...")
-    Y_df = pd.read_csv(data_dir / "final_data" / "Y_final.csv", header=0)
-    Y_df.reset_index(inplace=True
-    logger.info("Reading Y done"))
+    Y_fname = data_dir / "final_data" / "Y_final.sqlite"
+    Y_df = try_read_sql_csv(Y_fname)
+    logger.info("Reading Y done")
 
     # ############## Format data
     # Unify sites names
