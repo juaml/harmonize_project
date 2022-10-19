@@ -37,7 +37,9 @@ from pathlib import Path
 import sys
 
 
-sys.path.append(Path(__file__).resolve().parent.parent.as_posix())
+to_append = Path(__file__).resolve().parent.parent.as_posix()
+print(f'appending {to_append}')
+sys.path.append(to_append)
 from lib.utils import eval_harmonizer, show_hist, train_harmonizer  # noqa
 
 # Running Parameters
@@ -122,7 +124,7 @@ parser.add_argument(
 )
 parser.add_argument(
     '--fold', type=int, default=-1,
-    help='If -1, run all folds, otherwise run the specified fold')'
+    help='If -1, run all folds, otherwise run the specified fold'
 )
 parser.add_argument(
     "--random_state", type=int, default=23, help="Random State use"

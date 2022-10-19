@@ -33,7 +33,7 @@ exec_name = (
     '--harmonize_mode $(harmonize_mode) '
 )
 
-log_suffix = "juharmonize_$(exp_name)_$(harmonize_mode)_$(fold).log"
+log_suffix = "juharmonize_$(exp_name)/$(harmonize_mode)_$(fold).log"
 
 preamble = f"""
 # The environment
@@ -67,6 +67,8 @@ with open('all_data_parallel.submit', 'w') as f:
         args = ' '.join(
             f'--{arg_name} {arg_val}' for arg_name, arg_val in exp_config.items())
 
+        t_log_dir = log_dir / f"juharmonize_{exp_name}"
+        t_log_dir.mkdir(exist_ok=True, parents=True)
         t_save_dir = save_dir / exp_name
         t_save_dir.mkdir(exist_ok=True, parents=True)
         for t_mode in harmonize_modes:
