@@ -11,12 +11,15 @@ data_dir = "/data/project/harmonize/data/CAT/s4_r4/"
 save_dir = Path("/data/project/harmonize/results/")
 
 experiments = {
-    "test_HCP_IXI": {
-        "sites_use": "HCP IXI",
-        "problem_type": "binary_classification",
-        "n_high_var_feats": 10,
+    "test_all_regression": {
+        "sites_use": "eNKI ID1000 CamCAN 1000Gehirne",
+        "pred_model": "rvr",
+        "problem_type": "regression",
+        "n_high_var_feats": 29,
         "scaler": None,
-    }
+        "unify_sites" : ""
+    },
+
 }
 
 harmonize_modes = [
@@ -30,7 +33,7 @@ harmonize_modes = [
     "predict_pretend",
     "predict_pretend_nosite",
 ]
-n_splits = 10
+n_splits = 5
 
 
 exec_name = (

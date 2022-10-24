@@ -149,7 +149,7 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
         pred_model,
         stack_model=stack_model,
         random_state=42,
-        n_splits=10,
+        n_splits=harm_n_splits,
         regression_params=regression_params
     )
 

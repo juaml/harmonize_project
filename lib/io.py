@@ -1,8 +1,6 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from sqlalchemy import create_engine
-
 
 from .utils import show_hist
 from .logging import logger
@@ -116,29 +114,6 @@ def set_argparse_params(parser, use_oos=False):
     return parser
 
 
-def try_read_sql_csv(path):
-    failed = False
-    df = None
-    if path.exists():
-        try:
-            logger.info(f"Reading sqlite file {path.as_posix()}")
-            con = create_engine(f"sqlite:///{path.as_posix()}")
-            df = pd.read_sql_table(path.stem, con=con)
-            logger.info("Reading done")
-        except Exception as e:
-            logger.info(f"Reading failed: {e}")
-            failed = True
-
-    if not path.exists() or failed is True:
-        t_name = path.with_suffix(".csv")
-        logger.info(f"Reading: {t_name.as_posix()}")
-        df = pd.read_csv(t_name, header=0)
-        df.reset_index(inplace=True)
-        logger.info("Reading done")
-
-    return df
-
-
 def get_site_data(data_dir, site):
     # Load each individual site
     file_name = f"X_{site}.csv"
@@ -195,6 +170,12 @@ def postprocess_data(
         logger.info("Rounding up age")
         age = np.round(Y_df["age"].to_numpy())
         y = age
+        # filter under 18 participants
+        logger.info("Filter under 18 participants")
+        idx_age = y > 18
+        y = y[idx_age]
+        X = X[idx_age]
+        sites = sites[idx_age]
 
     # Check the target have at least 2 classes
     if len(np.unique(y)) == 2:

@@ -17,11 +17,17 @@ experiments = {
         "problem_type": "binary_classification",
         "n_high_var_feats": 10,
         "scaler": None,
+    },
+    "test_CoRR_oosENKI": {
+        "sites_use": "HCP IXI",
+        "sites_oos": "ENKI",
+        "problem_type": "binary_classification",
+        "n_high_var_feats": 10,
+        "scaler": None,
     }
 }
 
 harmonize_modes = [
-    "none",
     "target",
     "notarget",
     "predict",
