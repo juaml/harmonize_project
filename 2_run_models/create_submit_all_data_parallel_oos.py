@@ -11,19 +11,41 @@ data_dir = "/data/project/harmonize/data/CAT/s4_r4/"
 save_dir = Path("/data/project/harmonize/results/")
 
 experiments = {
-    "test_HCP_IXI_oosENKI": {
-        "sites_use": "HCP IXI",
-        "sites_oos": "ENKI",
-        "problem_type": "binary_classification",
-        "n_high_var_feats": 10,
+    "test_all_big_oos_eNKI": {
+        "sites_use": "ID1000 CamCAN 1000Gehirne",
+        "sites_oos": "eNKI",
+        "pred_model": "rvr",
+        "problem_type": "regression",
+        "n_high_var_feats": 29854,
         "scaler": None,
+        "unify_sites" : "None",
     },
-    "test_CoRR_oosENKI": {
-        "sites_use": "HCP IXI",
-        "sites_oos": "ENKI",
-        "problem_type": "binary_classification",
-        "n_high_var_feats": 10,
+    "test_all_big_oos_ID1000": {
+        "sites_use": "eNKI CamCAN 1000Gehirne",
+        "sites_oos": "ID1000",
+        "pred_model": "rvr",
+        "problem_type": "regression",
+        "n_high_var_feats": 29854,
         "scaler": None,
+        "unify_sites" : "None",
+    },
+        "test_all_big_oos_CamCAN": {
+        "sites_use": "eNKI ID1000 1000Gehirne",
+        "sites_oos": "CamCAN",
+        "pred_model": "rvr",
+        "problem_type": "regression",
+        "n_high_var_feats": 29854,
+        "scaler": None,
+        "unify_sites" : "None",
+    },
+        "test_all_big_oos_1000Gehirne": {
+        "sites_use": "eNKI ID1000 CamCAN",
+        "pred_model": "rvr",
+        "sites_oos": "1000Gehirne",
+        "problem_type": "regression",
+        "n_high_var_feats": 29854,
+        "scaler": None,
+        "unify_sites" : "None",
     }
 }
 

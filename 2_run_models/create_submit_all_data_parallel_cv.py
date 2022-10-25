@@ -15,9 +15,9 @@ experiments = {
         "sites_use": "eNKI ID1000 CamCAN 1000Gehirne",
         "pred_model": "rvr",
         "problem_type": "regression",
-        "n_high_var_feats": 29,
-        "scaler": True,
-        "unify_sites" : ""
+        "n_high_var_feats": 29854,
+        "scaler": None,
+        "unify_sites" : "None"
     },
 
 }

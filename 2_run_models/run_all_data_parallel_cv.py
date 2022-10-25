@@ -118,9 +118,9 @@ cheat = False
 if harmonize_mode == "cheat":
     logger.info("Cheat mode")
     cheat_model = JuHarmonize()
-    X_harm = cheat_model.fit_transform(X, y, sites, covars)
+    X = cheat_model.fit_transform(X, y, sites, covars)
 
-    new_var = np.sum(X_harm.std(axis=0) < X.std(axis=0))
+    new_var = np.sum(X.std(axis=0) < X.std(axis=0))
     # TODO: fix this or people will have strokes trying to understand
     logger.info(
         f"Variance decreased for {new_var} features of {X.shape[1]}"
