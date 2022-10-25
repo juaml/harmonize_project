@@ -149,7 +149,10 @@ def postprocess_data(
     # Unify sites names
     sites = Y_df["site"]
 
-    sites = unify_sites(sites, unify_sites_names)
+    if unify_sites_names == None:
+        logger.info("No site name unification")
+    else:
+        sites = unify_sites(sites, unify_sites_names)
 
     # put variables in the right format
     sites = np.array(sites)
@@ -198,8 +201,16 @@ def postprocess_data(
     # harmonization fails with low variance features
     if idxvar is None:
         colvar = np.var(X, axis=0)
+        # Identify variables with low variance
+        var_ix = colvar > 10e-5
         idxvar = np.argsort(-colvar)
-        idxvar = idxvar[range(0, n_high_var_feats)]
+        logger.info("Deleting: " + str(idxvar.shape[0]-np.count_nonzero(var_ix))+ " features with low variance")
+         # Delet variables with low variance
+        idxvar = idxvar[var_ix]
+        # Keep the minimun of 
+        id_keep = np.min([n_high_var_feats, idxvar.shape[0]])
+        idxvar = idxvar[range(0, id_keep)]
+
     X = X[:, idxvar]
 
     return X, y, sites, idxvar

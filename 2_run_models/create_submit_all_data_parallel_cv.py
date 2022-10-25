@@ -16,7 +16,7 @@ experiments = {
         "pred_model": "rvr",
         "problem_type": "regression",
         "n_high_var_feats": 29,
-        "scaler": None,
+        "scaler": True,
         "unify_sites" : ""
     },
 
