@@ -13,8 +13,6 @@ from juharmonize import (
     JuHarmonizePredictorCV,
 )
 
-import julearn
-
 from .logging import logger
 
 

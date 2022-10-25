@@ -165,7 +165,7 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
     logger.info("================================")
 
     out_fname = f"{harmonize_mode}_fold_{i_fold}_of_{n_splits}_out.csv"
-    to_save = pd.DataFrame({"y_true": y_test, "y_pred": out_fold})
+    to_save = pd.DataFrame({"y_true": y_test, "y_pred": out_fold, "site": sites_test})
     to_save['harmonize_mode'] = harmonize_mode
     to_save['fold'] = i_fold
     out_path = save_dir / out_fname

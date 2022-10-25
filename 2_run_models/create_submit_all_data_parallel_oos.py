@@ -50,13 +50,13 @@ experiments = {
 }
 
 harmonize_modes = [
-    "target",
-    "notarget",
-    "predict",
-    "pretend",
-    "pretend_nosite",
-    "predict_pretend",
-    "predict_pretend_nosite",
+    ["target","16G"],
+    ["notarget","16G"],
+    ["predict","16G"],
+    ["pretend","16G"],
+    ["pretend_nosite","16G"],
+    ["predict_pretend","500G"],
+    ["predict_pretend_nosite","500G"]
 ]
 
 exec_name = (
@@ -75,7 +75,7 @@ getenv         = True
 
 # Resources
 request_cpus   = 1
-request_memory = 16G
+request_memory = $(memory)
 request_disk   = 0
 
 # Executable
@@ -107,8 +107,9 @@ with open("all_data_parallel_oos.submit", "w") as f:
         t_log_dir.mkdir(exist_ok=True, parents=True)
         t_save_dir = save_dir / exp_name
         t_save_dir.mkdir(exist_ok=True, parents=True)
-        for t_mode in harmonize_modes:
+        for t_mode, memory in harmonize_modes:
             f.write(f"exp_name={exp_name}\n")
+            f.write(f"memory={memory}\n")
             f.write(f"args={args}\n")
             f.write(f"harmonize_mode={t_mode}\n")
             f.write("queue\n\n")
