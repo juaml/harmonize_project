@@ -19,6 +19,7 @@ from lib.harmonize import eval_harmonizer, train_harmonizer  # noqa
 from lib import io  # noqa
 from lib import ml  # noqa
 from lib.logging import logger, configure_logging  # noqa
+
 # Running Parameters
 
 configure_logging()
@@ -47,8 +48,10 @@ parser.add_argument(
     "--regression_points", type=int, default=100, help="Regression point"
 )
 parser.add_argument(
-    "--no_regression_search", action='store_false', default=True,
-    help="Skip regression search"
+    "--no_regression_search",
+    action="store_false",
+    default=True,
+    help="Skip regression search",
 )
 
 parser.add_argument(
@@ -65,8 +68,10 @@ parser.add_argument(
     "--n_splits", type=int, default=3, help="Numbers of CV folds"
 )
 parser.add_argument(
-    '--fold', type=int, default=-1,
-    help='If -1, run all folds, otherwise run the specified fold'
+    "--fold",
+    type=int,
+    default=-1,
+    help="If -1, run all folds, otherwise run the specified fold",
 )
 parser.add_argument(
     "--random_state", type=int, default=23, help="Random State use"
@@ -122,9 +127,7 @@ if harmonize_mode == "cheat":
 
     new_var = np.sum(X.std(axis=0) < X.std(axis=0))
     # TODO: fix this or people will have strokes trying to understand
-    logger.info(
-        f"Variance decreased for {new_var} features of {X.shape[1]}"
-    )
+    logger.info(f"Variance decreased for {new_var} features of {X.shape[1]}")
     harmonize_mode = "none"
     cheat = True
 
@@ -150,7 +153,7 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
         stack_model=stack_model,
         random_state=42,
         n_splits=harm_n_splits,
-        regression_params=regression_params
+        regression_params=regression_params,
     )
 
     out_fold, acc_fold = eval_harmonizer(
@@ -165,9 +168,11 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
     logger.info("================================")
 
     out_fname = f"{harmonize_mode}_fold_{i_fold}_of_{n_splits}_out.csv"
-    to_save = pd.DataFrame({"y_true": y_test, "y_pred": out_fold, "site": sites_test})
-    to_save['harmonize_mode'] = harmonize_mode
-    to_save['fold'] = i_fold
+    to_save = pd.DataFrame(
+        {"y_true": y_test, "y_pred": out_fold, "site": sites_test}
+    )
+    to_save["harmonize_mode"] = harmonize_mode
+    to_save["fold"] = i_fold
     out_path = save_dir / out_fname
     logger.info(f"Saving dataframe in {out_path.as_posix()}")
-    to_save.to_csv(out_path, sep=';')
+    to_save.to_csv(out_path, sep=";")

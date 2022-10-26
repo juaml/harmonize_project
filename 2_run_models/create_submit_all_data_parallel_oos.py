@@ -18,7 +18,7 @@ experiments = {
         "problem_type": "regression",
         "n_high_var_feats": 29854,
         "scaler": None,
-        "unify_sites" : "None",
+        "unify_sites": "None",
     },
     "test_all_big_oos_ID1000": {
         "sites_use": "eNKI CamCAN 1000Gehirne",
@@ -27,36 +27,36 @@ experiments = {
         "problem_type": "regression",
         "n_high_var_feats": 29854,
         "scaler": None,
-        "unify_sites" : "None",
+        "unify_sites": "None",
     },
-        "test_all_big_oos_CamCAN": {
+    "test_all_big_oos_CamCAN": {
         "sites_use": "eNKI ID1000 1000Gehirne",
         "sites_oos": "CamCAN",
         "pred_model": "rvr",
         "problem_type": "regression",
         "n_high_var_feats": 29854,
         "scaler": None,
-        "unify_sites" : "None",
+        "unify_sites": "None",
     },
-        "test_all_big_oos_1000Gehirne": {
+    "test_all_big_oos_1000Gehirne": {
         "sites_use": "eNKI ID1000 CamCAN",
         "pred_model": "rvr",
         "sites_oos": "1000Gehirne",
         "problem_type": "regression",
         "n_high_var_feats": 29854,
         "scaler": None,
-        "unify_sites" : "None",
-    }
+        "unify_sites": "None",
+    },
 }
 
 harmonize_modes = [
-    ["target","16G"],
-    ["notarget","16G"],
-    ["predict","16G"],
-    ["pretend","16G"],
-    ["pretend_nosite","16G"],
-    ["predict_pretend","500G"],
-    ["predict_pretend_nosite","500G"]
+    ["target", "16G"],
+    ["notarget", "16G"],
+    ["predict", "16G"],
+    ["pretend", "16G"],
+    ["pretend_nosite", "16G"],
+    ["predict_pretend", "500G"],
+    ["predict_pretend_nosite", "500G"],
 ]
 
 exec_name = (

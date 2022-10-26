@@ -17,21 +17,20 @@ experiments = {
         "problem_type": "regression",
         "n_high_var_feats": 29854,
         "scaler": None,
-        "unify_sites" : "None"
+        "unify_sites": "None",
     },
-
 }
 
 harmonize_modes = [
-    ["cheat","16G"],
-    ["none","16G"],
-    ["target","16G"],
-    ["notarget","16G"],
-    ["predict","16G"],
-    ["pretend","16G"],
-    ["pretend_nosite","16G"],
-    ["predict_pretend","16G"],
-    ["predict_pretend_nosite","16G"]
+    ["cheat", "16G"],
+    ["none", "16G"],
+    ["target", "16G"],
+    ["notarget", "16G"],
+    ["predict", "16G"],
+    ["pretend", "16G"],
+    ["pretend_nosite", "16G"],
+    ["predict_pretend", "16G"],
+    ["predict_pretend_nosite", "16G"],
 ]
 n_splits = 5
 
@@ -86,8 +85,8 @@ with open("all_data_parallel_cv.submit", "w") as f:
         t_log_dir.mkdir(exist_ok=True, parents=True)
         t_save_dir = save_dir / exp_name
         t_save_dir.mkdir(exist_ok=True, parents=True)
-        for t_mode in harmonize_modes:
-            for i_fold, memory in range(n_splits):
+        for t_mode, memory in harmonize_modes:
+            for i_fold in range(n_splits):
                 f.write(f"exp_name={exp_name}\n")
                 f.write(f"memory={memory}\n")
                 f.write(f"args={args}\n")
