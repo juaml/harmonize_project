@@ -26,11 +26,11 @@ harmonize_modes = [
     ["none", "16G"],
     ["target", "16G"],
     ["notarget", "16G"],
-    ["predict", "16G"],
+    ["predict", "500G"],
     ["pretend", "16G"],
     ["pretend_nosite", "16G"],
-    ["predict_pretend", "16G"],
-    ["predict_pretend_nosite", "16G"],
+    ["predict_pretend", "500G"],
+    ["predict_pretend_nosite", "500G"],
 ]
 n_splits = 5
 

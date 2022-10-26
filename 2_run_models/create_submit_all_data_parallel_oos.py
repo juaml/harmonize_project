@@ -52,7 +52,7 @@ experiments = {
 harmonize_modes = [
     ["target", "16G"],
     ["notarget", "16G"],
-    ["predict", "16G"],
+    ["predict", "500G"],
     ["pretend", "16G"],
     ["pretend_nosite", "16G"],
     ["predict_pretend", "500G"],
