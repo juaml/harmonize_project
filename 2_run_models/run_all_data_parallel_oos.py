@@ -39,8 +39,8 @@ parser.add_argument(
     "--regression_points", type=int, default=100, help="Regression point"
 )
 parser.add_argument(
-    "--no_regression_search", action='store_false', default=True,
-    help="Skip regression search"
+    "--regression_search", action='store_true', default=False,
+    help="Do regression search"
 )
 
 parser.add_argument(
@@ -86,7 +86,7 @@ if problem_type == "regression":
     regression_params = {
         "regression_points": params.regression_points,
         "regression_search_tol": params.regression_search_tol,
-        "regression_search": params.no_regression_search,
+        "regression_search": params.regression_search,
     }
 
 
