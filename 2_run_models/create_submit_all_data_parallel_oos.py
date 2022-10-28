@@ -50,12 +50,12 @@ experiments = {
 }
 
 harmonize_modes = [
-    ["none", "16G"],
-    ["pretend", "16G"],
-    ["pretend_nosite", "16G"],
-    ["predict", "20G"],
-    ["predict_pretend", "20G"],
-    ["predict_pretend_nosite", "20G"],
+    ["none", "16G", 1],
+    ["pretend", "16G", 1],
+    ["pretend_nosite", "16G", 1],
+    ["predict", "20G", "10", 1],
+    ["predict_pretend", "20G", 10],
+    ["predict_pretend_nosite", "20G", 10],
 ]
 
 exec_name = (
@@ -63,6 +63,7 @@ exec_name = (
     f"--data_dir {data_dir} "
     f"--save_dir {save_dir.as_posix()}/$(exp_name) "
     "--harmonize_mode $(harmonize_mode) "
+    "--n_jobs $(cpus) "
 )
 
 log_suffix = "juharmonize_$(exp_name)/$(harmonize_mode)"
@@ -73,7 +74,7 @@ universe       = vanilla
 getenv         = True
 
 # Resources
-request_cpus   = 1
+request_cpus   = $(cpus)
 request_memory = $(memory)
 request_disk   = 200 GB
 
@@ -106,9 +107,10 @@ with open("all_data_parallel_oos.submit", "w") as f:
         t_log_dir.mkdir(exist_ok=True, parents=True)
         t_save_dir = save_dir / exp_name
         t_save_dir.mkdir(exist_ok=True, parents=True)
-        for t_mode, memory in harmonize_modes:
+        for t_mode, memory, cpus in harmonize_modes:
             f.write(f"exp_name={exp_name}\n")
             f.write(f"memory={memory}\n")
+            f.write(f"cpus={cpus}\n")
             f.write(f"args={args}\n")
             f.write(f"harmonize_mode={t_mode}\n")
             f.write("queue\n\n")
