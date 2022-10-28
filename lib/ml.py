@@ -52,6 +52,8 @@ def get_models(params, problem_type):
     scaler = params.scaler
     logger.info(f"\tPCA: {pca}")
     logger.info(f"\tScaler: {scaler}")
+    logger.info(f"\tUse Disk: {params.use_disk}")
+    logger.info(f"\tN Jobs: {params.n_jobs}")
     if pred_model not in _valid_models[problem_type]:
         raise ValueError(
             f"Invalid prediction model ({pred_model}). "
