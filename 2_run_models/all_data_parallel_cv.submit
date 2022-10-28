@@ -6,7 +6,7 @@ getenv         = True
 # Resources
 request_cpus   = 1
 request_memory = $(memory)
-request_disk   = 0
+request_disk   = 200 GB
 
 # Executable
 initial_dir    = /data/project/harmonize/nnieto/harmonize_project/2_run_models
@@ -22,7 +22,7 @@ error          = /data/project/harmonize/nnieto/harmonize_project/2_run_models/l
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=cheat
 fold=0
 n_splits=5
@@ -30,7 +30,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=cheat
 fold=1
 n_splits=5
@@ -38,7 +38,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=cheat
 fold=2
 n_splits=5
@@ -46,7 +46,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=cheat
 fold=3
 n_splits=5
@@ -54,7 +54,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=cheat
 fold=4
 n_splits=5
@@ -62,7 +62,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=none
 fold=0
 n_splits=5
@@ -70,7 +70,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=none
 fold=1
 n_splits=5
@@ -78,7 +78,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=none
 fold=2
 n_splits=5
@@ -86,7 +86,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=none
 fold=3
 n_splits=5
@@ -94,7 +94,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=none
 fold=4
 n_splits=5
@@ -102,7 +102,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=target
 fold=0
 n_splits=5
@@ -110,7 +110,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=target
 fold=1
 n_splits=5
@@ -118,7 +118,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=target
 fold=2
 n_splits=5
@@ -126,7 +126,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=target
 fold=3
 n_splits=5
@@ -134,7 +134,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=target
 fold=4
 n_splits=5
@@ -142,7 +142,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=notarget
 fold=0
 n_splits=5
@@ -150,7 +150,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=notarget
 fold=1
 n_splits=5
@@ -158,7 +158,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=notarget
 fold=2
 n_splits=5
@@ -166,7 +166,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=notarget
 fold=3
 n_splits=5
@@ -174,55 +174,15 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=notarget
 fold=4
 n_splits=5
 queue
 
 exp_name=test_all_regression
-memory=500G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
-harmonize_mode=predict
-fold=0
-n_splits=5
-queue
-
-exp_name=test_all_regression
-memory=500G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
-harmonize_mode=predict
-fold=1
-n_splits=5
-queue
-
-exp_name=test_all_regression
-memory=500G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
-harmonize_mode=predict
-fold=2
-n_splits=5
-queue
-
-exp_name=test_all_regression
-memory=500G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
-harmonize_mode=predict
-fold=3
-n_splits=5
-queue
-
-exp_name=test_all_regression
-memory=500G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
-harmonize_mode=predict
-fold=4
-n_splits=5
-queue
-
-exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=pretend
 fold=0
 n_splits=5
@@ -230,7 +190,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=pretend
 fold=1
 n_splits=5
@@ -238,7 +198,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=pretend
 fold=2
 n_splits=5
@@ -246,7 +206,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=pretend
 fold=3
 n_splits=5
@@ -254,7 +214,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=pretend
 fold=4
 n_splits=5
@@ -262,7 +222,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=pretend_nosite
 fold=0
 n_splits=5
@@ -270,7 +230,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=pretend_nosite
 fold=1
 n_splits=5
@@ -278,7 +238,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=pretend_nosite
 fold=2
 n_splits=5
@@ -286,7 +246,7 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=pretend_nosite
 fold=3
 n_splits=5
@@ -294,87 +254,127 @@ queue
 
 exp_name=test_all_regression
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=pretend_nosite
 fold=4
 n_splits=5
 queue
 
 exp_name=test_all_regression
-memory=500G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+memory=20G
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
+harmonize_mode=predict
+fold=0
+n_splits=5
+queue
+
+exp_name=test_all_regression
+memory=20G
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
+harmonize_mode=predict
+fold=1
+n_splits=5
+queue
+
+exp_name=test_all_regression
+memory=20G
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
+harmonize_mode=predict
+fold=2
+n_splits=5
+queue
+
+exp_name=test_all_regression
+memory=20G
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
+harmonize_mode=predict
+fold=3
+n_splits=5
+queue
+
+exp_name=test_all_regression
+memory=20G
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
+harmonize_mode=predict
+fold=4
+n_splits=5
+queue
+
+exp_name=test_all_regression
+memory=20G
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=predict_pretend
 fold=0
 n_splits=5
 queue
 
 exp_name=test_all_regression
-memory=500G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+memory=20G
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=predict_pretend
 fold=1
 n_splits=5
 queue
 
 exp_name=test_all_regression
-memory=500G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+memory=20G
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=predict_pretend
 fold=2
 n_splits=5
 queue
 
 exp_name=test_all_regression
-memory=500G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+memory=20G
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=predict_pretend
 fold=3
 n_splits=5
 queue
 
 exp_name=test_all_regression
-memory=500G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+memory=20G
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=predict_pretend
 fold=4
 n_splits=5
 queue
 
 exp_name=test_all_regression
-memory=500G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+memory=20G
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=predict_pretend_nosite
 fold=0
 n_splits=5
 queue
 
 exp_name=test_all_regression
-memory=500G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+memory=20G
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=predict_pretend_nosite
 fold=1
 n_splits=5
 queue
 
 exp_name=test_all_regression
-memory=500G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+memory=20G
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=predict_pretend_nosite
 fold=2
 n_splits=5
 queue
 
 exp_name=test_all_regression
-memory=500G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+memory=20G
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=predict_pretend_nosite
 fold=3
 n_splits=5
 queue
 
 exp_name=test_all_regression
-memory=500G
-args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+memory=20G
+args=--sites_use eNKI ID1000 CamCAN 1000Gehirne --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=predict_pretend_nosite
 fold=4
 n_splits=5

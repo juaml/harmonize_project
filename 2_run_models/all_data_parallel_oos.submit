@@ -6,7 +6,7 @@ getenv         = True
 # Resources
 request_cpus   = 1
 request_memory = $(memory)
-request_disk   = 0
+request_disk   = 200 GB
 
 # Executable
 initial_dir    = /data/project/harmonize/nnieto/harmonize_project/2_run_models
@@ -22,169 +22,145 @@ error          = /data/project/harmonize/nnieto/harmonize_project/2_run_models/l
 
 exp_name=test_all_big_oos_eNKI
 memory=16G
-args=--sites_use ID1000 CamCAN 1000Gehirne --sites_oos eNKI --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
-harmonize_mode=target
+args=--sites_use ID1000 CamCAN 1000Gehirne --sites_oos eNKI --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
+harmonize_mode=none
 queue
 
 exp_name=test_all_big_oos_eNKI
 memory=16G
-args=--sites_use ID1000 CamCAN 1000Gehirne --sites_oos eNKI --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
-harmonize_mode=notarget
-queue
-
-exp_name=test_all_big_oos_eNKI
-memory=500G
-args=--sites_use ID1000 CamCAN 1000Gehirne --sites_oos eNKI --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
-harmonize_mode=predict
-queue
-
-exp_name=test_all_big_oos_eNKI
-memory=16G
-args=--sites_use ID1000 CamCAN 1000Gehirne --sites_oos eNKI --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use ID1000 CamCAN 1000Gehirne --sites_oos eNKI --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=pretend
 queue
 
 exp_name=test_all_big_oos_eNKI
 memory=16G
-args=--sites_use ID1000 CamCAN 1000Gehirne --sites_oos eNKI --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use ID1000 CamCAN 1000Gehirne --sites_oos eNKI --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=pretend_nosite
 queue
 
 exp_name=test_all_big_oos_eNKI
-memory=500G
-args=--sites_use ID1000 CamCAN 1000Gehirne --sites_oos eNKI --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+memory=20G
+args=--sites_use ID1000 CamCAN 1000Gehirne --sites_oos eNKI --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
+harmonize_mode=predict
+queue
+
+exp_name=test_all_big_oos_eNKI
+memory=20G
+args=--sites_use ID1000 CamCAN 1000Gehirne --sites_oos eNKI --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=predict_pretend
 queue
 
 exp_name=test_all_big_oos_eNKI
-memory=500G
-args=--sites_use ID1000 CamCAN 1000Gehirne --sites_oos eNKI --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+memory=20G
+args=--sites_use ID1000 CamCAN 1000Gehirne --sites_oos eNKI --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=predict_pretend_nosite
 queue
 
 exp_name=test_all_big_oos_ID1000
 memory=16G
-args=--sites_use eNKI CamCAN 1000Gehirne --sites_oos ID1000 --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
-harmonize_mode=target
+args=--sites_use eNKI CamCAN 1000Gehirne --sites_oos ID1000 --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
+harmonize_mode=none
 queue
 
 exp_name=test_all_big_oos_ID1000
 memory=16G
-args=--sites_use eNKI CamCAN 1000Gehirne --sites_oos ID1000 --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
-harmonize_mode=notarget
-queue
-
-exp_name=test_all_big_oos_ID1000
-memory=500G
-args=--sites_use eNKI CamCAN 1000Gehirne --sites_oos ID1000 --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
-harmonize_mode=predict
-queue
-
-exp_name=test_all_big_oos_ID1000
-memory=16G
-args=--sites_use eNKI CamCAN 1000Gehirne --sites_oos ID1000 --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI CamCAN 1000Gehirne --sites_oos ID1000 --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=pretend
 queue
 
 exp_name=test_all_big_oos_ID1000
 memory=16G
-args=--sites_use eNKI CamCAN 1000Gehirne --sites_oos ID1000 --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI CamCAN 1000Gehirne --sites_oos ID1000 --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=pretend_nosite
 queue
 
 exp_name=test_all_big_oos_ID1000
-memory=500G
-args=--sites_use eNKI CamCAN 1000Gehirne --sites_oos ID1000 --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+memory=20G
+args=--sites_use eNKI CamCAN 1000Gehirne --sites_oos ID1000 --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
+harmonize_mode=predict
+queue
+
+exp_name=test_all_big_oos_ID1000
+memory=20G
+args=--sites_use eNKI CamCAN 1000Gehirne --sites_oos ID1000 --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=predict_pretend
 queue
 
 exp_name=test_all_big_oos_ID1000
-memory=500G
-args=--sites_use eNKI CamCAN 1000Gehirne --sites_oos ID1000 --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+memory=20G
+args=--sites_use eNKI CamCAN 1000Gehirne --sites_oos ID1000 --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=predict_pretend_nosite
 queue
 
 exp_name=test_all_big_oos_CamCAN
 memory=16G
-args=--sites_use eNKI ID1000 1000Gehirne --sites_oos CamCAN --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
-harmonize_mode=target
+args=--sites_use eNKI ID1000 1000Gehirne --sites_oos CamCAN --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
+harmonize_mode=none
 queue
 
 exp_name=test_all_big_oos_CamCAN
 memory=16G
-args=--sites_use eNKI ID1000 1000Gehirne --sites_oos CamCAN --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
-harmonize_mode=notarget
-queue
-
-exp_name=test_all_big_oos_CamCAN
-memory=500G
-args=--sites_use eNKI ID1000 1000Gehirne --sites_oos CamCAN --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
-harmonize_mode=predict
-queue
-
-exp_name=test_all_big_oos_CamCAN
-memory=16G
-args=--sites_use eNKI ID1000 1000Gehirne --sites_oos CamCAN --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 1000Gehirne --sites_oos CamCAN --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=pretend
 queue
 
 exp_name=test_all_big_oos_CamCAN
 memory=16G
-args=--sites_use eNKI ID1000 1000Gehirne --sites_oos CamCAN --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 1000Gehirne --sites_oos CamCAN --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=pretend_nosite
 queue
 
 exp_name=test_all_big_oos_CamCAN
-memory=500G
-args=--sites_use eNKI ID1000 1000Gehirne --sites_oos CamCAN --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+memory=20G
+args=--sites_use eNKI ID1000 1000Gehirne --sites_oos CamCAN --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
+harmonize_mode=predict
+queue
+
+exp_name=test_all_big_oos_CamCAN
+memory=20G
+args=--sites_use eNKI ID1000 1000Gehirne --sites_oos CamCAN --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=predict_pretend
 queue
 
 exp_name=test_all_big_oos_CamCAN
-memory=500G
-args=--sites_use eNKI ID1000 1000Gehirne --sites_oos CamCAN --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+memory=20G
+args=--sites_use eNKI ID1000 1000Gehirne --sites_oos CamCAN --pred_model rvr --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=predict_pretend_nosite
 queue
 
 exp_name=test_all_big_oos_1000Gehirne
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN --pred_model rvr --sites_oos 1000Gehirne --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
-harmonize_mode=target
+args=--sites_use eNKI ID1000 CamCAN --pred_model rvr --sites_oos 1000Gehirne --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
+harmonize_mode=none
 queue
 
 exp_name=test_all_big_oos_1000Gehirne
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN --pred_model rvr --sites_oos 1000Gehirne --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
-harmonize_mode=notarget
-queue
-
-exp_name=test_all_big_oos_1000Gehirne
-memory=500G
-args=--sites_use eNKI ID1000 CamCAN --pred_model rvr --sites_oos 1000Gehirne --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
-harmonize_mode=predict
-queue
-
-exp_name=test_all_big_oos_1000Gehirne
-memory=16G
-args=--sites_use eNKI ID1000 CamCAN --pred_model rvr --sites_oos 1000Gehirne --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN --pred_model rvr --sites_oos 1000Gehirne --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=pretend
 queue
 
 exp_name=test_all_big_oos_1000Gehirne
 memory=16G
-args=--sites_use eNKI ID1000 CamCAN --pred_model rvr --sites_oos 1000Gehirne --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+args=--sites_use eNKI ID1000 CamCAN --pred_model rvr --sites_oos 1000Gehirne --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=pretend_nosite
 queue
 
 exp_name=test_all_big_oos_1000Gehirne
-memory=500G
-args=--sites_use eNKI ID1000 CamCAN --pred_model rvr --sites_oos 1000Gehirne --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+memory=20G
+args=--sites_use eNKI ID1000 CamCAN --pred_model rvr --sites_oos 1000Gehirne --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
+harmonize_mode=predict
+queue
+
+exp_name=test_all_big_oos_1000Gehirne
+memory=20G
+args=--sites_use eNKI ID1000 CamCAN --pred_model rvr --sites_oos 1000Gehirne --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=predict_pretend
 queue
 
 exp_name=test_all_big_oos_1000Gehirne
-memory=500G
-args=--sites_use eNKI ID1000 CamCAN --pred_model rvr --sites_oos 1000Gehirne --problem_type regression --n_high_var_feats 29854 --scaler --unify_sites None
+memory=20G
+args=--sites_use eNKI ID1000 CamCAN --pred_model rvr --sites_oos 1000Gehirne --problem_type regression --n_high_var_feats 29854 --scaler --use_disk
 harmonize_mode=predict_pretend_nosite
 queue
 
