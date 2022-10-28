@@ -18,7 +18,7 @@ experiments = {
         "problem_type": "regression",
         "n_high_var_feats": 29854,
         "scaler": None,
-        "unify_sites": "None",
+        "use_disk": None,
     },
     "test_all_big_oos_ID1000": {
         "sites_use": "eNKI CamCAN 1000Gehirne",
@@ -27,7 +27,7 @@ experiments = {
         "problem_type": "regression",
         "n_high_var_feats": 29854,
         "scaler": None,
-        "unify_sites": "None",
+        "use_disk": None,
     },
     "test_all_big_oos_CamCAN": {
         "sites_use": "eNKI ID1000 1000Gehirne",
@@ -36,7 +36,7 @@ experiments = {
         "problem_type": "regression",
         "n_high_var_feats": 29854,
         "scaler": None,
-        "unify_sites": "None",
+        "use_disk": None,
     },
     "test_all_big_oos_1000Gehirne": {
         "sites_use": "eNKI ID1000 CamCAN",
@@ -45,18 +45,17 @@ experiments = {
         "problem_type": "regression",
         "n_high_var_feats": 29854,
         "scaler": None,
-        "unify_sites": "None",
+        "use_disk": None,
     },
 }
 
 harmonize_modes = [
-    ["target", "16G"],
-    ["notarget", "16G"],
-    ["predict", "500G"],
+    ["none", "16G"],
     ["pretend", "16G"],
     ["pretend_nosite", "16G"],
-    ["predict_pretend", "500G"],
-    ["predict_pretend_nosite", "500G"],
+    ["predict", "20G"],
+    ["predict_pretend", "20G"],
+    ["predict_pretend_nosite", "20G"],
 ]
 
 exec_name = (
@@ -76,7 +75,7 @@ getenv         = True
 # Resources
 request_cpus   = 1
 request_memory = $(memory)
-request_disk   = 0
+request_disk   = 200 GB
 
 # Executable
 initial_dir    = {cwd}

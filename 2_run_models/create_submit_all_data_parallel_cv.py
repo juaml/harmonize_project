@@ -17,7 +17,7 @@ experiments = {
         "problem_type": "regression",
         "n_high_var_feats": 29854,
         "scaler": None,
-        "unify_sites": "None",
+        "use_disk": None,
     },
 }
 
@@ -26,11 +26,11 @@ harmonize_modes = [
     ["none", "16G"],
     ["target", "16G"],
     ["notarget", "16G"],
-    ["predict", "500G"],
     ["pretend", "16G"],
     ["pretend_nosite", "16G"],
-    ["predict_pretend", "500G"],
-    ["predict_pretend_nosite", "500G"],
+    ["predict", "20G"],
+    ["predict_pretend", "20G"],
+    ["predict_pretend_nosite", "20G"],
 ]
 n_splits = 5
 
@@ -54,7 +54,7 @@ getenv         = True
 # Resources
 request_cpus   = 1
 request_memory = $(memory)
-request_disk   = 0
+request_disk   = 200 GB
 
 # Executable
 initial_dir    = {cwd}

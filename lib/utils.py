@@ -103,8 +103,14 @@ def check_params(params):
         "regression": ["gsgpr", "gssvm", "ridgecv", "rvr"],
     }
 
-    params.problem_type
-    params.pred_model
-    params.harmonize_mode
+    if not params.pred_model in valid_models[params.problem_type]:
+        ValueError("Invalid predict method")
 
-    return params
+    valid_harmonize_mode = ["none", "target","cheat", "no_target", "pretend", 
+                            "pretend_nosite", "predict", "predict_pretend", 
+                            "predict_pretend_nosite"]
+
+    if not params.harmonize_mode in valid_harmonize_mode:
+        ValueError("Invalid harmonization method")
+
+    return 
