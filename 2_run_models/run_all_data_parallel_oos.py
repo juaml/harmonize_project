@@ -11,6 +11,7 @@ from lib.harmonize import eval_harmonizer, train_harmonizer  # noqa
 from lib import io  # noqa
 from lib import ml  # noqa
 from lib.logging import logger, configure_logging  # noqa
+from lib.utils import check_params
 # Running Parameters
 
 configure_logging()
@@ -58,11 +59,20 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--use_disk",
+    action="store_true",
+    default=False,
+    help="Use disk for save RF",
+)
+
+parser.add_argument(
     "--n_jobs", type=int, default=None, help="Numbers of jobs for predictor"
 )
 
 
 params = parser.parse_args()
+
+check_params(params)
 
 # Paths
 save_dir = Path(params.save_dir)
@@ -79,6 +89,7 @@ problem_type = params.problem_type
 # Harmonizaton set up
 harm_n_splits = params.harm_n_splits
 harmonize_mode = params.harmonize_mode
+use_disk = params.use_disk
 n_jobs = params.n_jobs
 
 
@@ -109,9 +120,10 @@ harm_model = train_harmonizer(
     covars,
     pred_model,
     stack_model=stack_model,
-    random_state=42,
+    random_state=random_state,
     n_splits=10,
     regression_params=regression_params,
+    use_disk = use_disk,
     n_jobs=n_jobs
 )
 
