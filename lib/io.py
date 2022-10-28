@@ -90,7 +90,7 @@ def set_argparse_params(parser, use_oos=False):
         "--unify_sites",
         nargs="+",
         type=str,
-        default=["IXI", "CORR", "AOMIC"],
+        default= None,
         help="Sites to unify",
     )
     parser.add_argument(

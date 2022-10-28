@@ -97,3 +97,7 @@ def show_hist(y, main='', bins=5):
 #         acc = mean_absolute_error(y, pred)
 #     return pred, acc
 
+def check_params(params):
+
+
+    return params

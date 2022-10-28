@@ -80,6 +80,7 @@ def train_harmonizer(
     random_state=None,
     n_splits=10,
     regression_params=None,
+    use_disk=False,
     n_jobs=None
 ):
     if regression_params is None:
@@ -115,7 +116,7 @@ def train_harmonizer(
         logger.info("Fit done")
     elif harm_type == "predict":
         rf_model = RandomForestRegressor(n_jobs=n_jobs)
-        out["harm_model"] = JuHarmonizePredictor(use_disk=True, model=rf_model)
+        out["harm_model"] = JuHarmonizePredictor(use_disk=use_disk, model=rf_model)
         logger.info("JuHarmonizePredictor fit_transform")
         X_harm = out["harm_model"].fit_transform(X, y, sites, covars)
         logger.info("Predictive model fit")
@@ -149,7 +150,7 @@ def train_harmonizer(
             **regression_params,
         )
         predictor_params = {
-            "use_disk": True,
+            "use_disk": use_disk,
             "model": RandomForestRegressor(n_jobs=n_jobs),
         }
         out["harm_model"] = JuHarmonizePredictorCV(

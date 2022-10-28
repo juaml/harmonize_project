@@ -19,6 +19,7 @@ from lib.harmonize import eval_harmonizer, train_harmonizer  # noqa
 from lib import io  # noqa
 from lib import ml  # noqa
 from lib.logging import logger, configure_logging  # noqa
+from lib.utils import check_params
 
 # Running Parameters
 
@@ -62,7 +63,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--harmonize_mode", type=str, default="JUHA", help="Harmonization Mode"
+    "--harmonize_mode", type=str, default="pretend", help="Harmonization Mode"
 )
 parser.add_argument(
     "--n_splits", type=int, default=3, help="Numbers of CV folds"
@@ -78,10 +79,19 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--use_disk",
+    action="store_true",
+    default=False,
+    help="Use disk for save RF",
+)
+
+parser.add_argument(
     "--n_jobs", type=int, default=None, help="Numbers of jobs for predictor"
 )
 
 params = parser.parse_args()
+
+check_params(params)
 
 # Paths
 save_dir = Path(params.save_dir)
@@ -101,14 +111,14 @@ fold_to_do = params.fold
 harm_n_splits = params.harm_n_splits
 harmonize_mode = params.harmonize_mode
 n_jobs = params.n_jobs
-
+use_disk = params.use_disk
 
 # ######################## Models Set ups
 
 pred_model, stack_model = ml.get_models(params, problem_type)
 
 # Cross varidation Parameters
-kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
+kf = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
 
 
 regression_params = None
@@ -156,9 +166,10 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
         covars_train,
         pred_model,
         stack_model=stack_model,
-        random_state=42,
+        random_state=random_state,
         n_splits=harm_n_splits,
         regression_params=regression_params,
+        use_disk = use_disk,
         n_jobs=n_jobs
     )
 
