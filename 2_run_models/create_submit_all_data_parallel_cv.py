@@ -22,15 +22,15 @@ experiments = {
 }
 
 harmonize_modes = [
-    ["cheat", "16G", 1],
-    ["none", "16G", 1],
-    ["target", "16G", 1],
-    ["notarget", "16G", 1],
-    ["pretend", "16G", 1],
-    ["pretend_nosite", "16G", 1],
-    ["predict", "20G", 10],
-    ["predict_pretend", "20G", 10],
-    ["predict_pretend_nosite", "20G", 10],
+    ["cheat", "16G", 1, 0],
+    ["none", "16G", 1, 0],
+    ["target", "16G", 1, 0],
+    ["notarget", "16G", 1, 0],
+    ["pretend", "16G", 1, 0],
+    ["pretend_nosite", "16G", 1, 0],
+    ["predict", "20G", 10, "1500G"],
+    ["predict_pretend", "20G", 10, "1500G"],
+    ["predict_pretend_nosite", "20G", 10, "1500G"],
 ]
 n_splits = 5
 
@@ -55,7 +55,7 @@ getenv         = True
 # Resources
 request_cpus   = $(cpus)
 request_memory = $(memory)
-request_disk   = 200 GB
+request_disk   = $(disk)
 
 # Executable
 initial_dir    = {cwd}
@@ -86,11 +86,12 @@ with open("all_data_parallel_cv.submit", "w") as f:
         t_log_dir.mkdir(exist_ok=True, parents=True)
         t_save_dir = save_dir / exp_name
         t_save_dir.mkdir(exist_ok=True, parents=True)
-        for t_mode, memory, cpus in harmonize_modes:
+        for t_mode, memory, cpus, disk in harmonize_modes:
             for i_fold in range(n_splits):
                 f.write(f"exp_name={exp_name}\n")
                 f.write(f"memory={memory}\n")
                 f.write(f"cpus={cpus}\n")
+                f.write(f"disk={disk}\n")
                 f.write(f"args={args}\n")
                 f.write(f"harmonize_mode={t_mode}\n")
                 f.write(f"fold={i_fold}\n")
