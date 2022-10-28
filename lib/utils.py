@@ -98,6 +98,13 @@ def show_hist(y, main='', bins=5):
 #     return pred, acc
 
 def check_params(params):
+    valid_models = {
+        "binary_classification": ["gssvm", "rvc", "svm"],
+        "regression": ["gsgpr", "gssvm", "ridgecv", "rvr"],
+    }
 
+    params.problem_type
+    params.pred_model
+    params.harmonize_mode
 
     return params
