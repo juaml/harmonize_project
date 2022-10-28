@@ -106,7 +106,7 @@ def check_params(params):
     if not params.pred_model in valid_models[params.problem_type]:
         ValueError("Invalid predict method")
 
-    valid_harmonize_mode = ["none", "target","cheat", "no_target", "pretend", 
+    valid_harmonize_mode = ["none", "target","cheat", "notarget", "pretend", 
                             "pretend_nosite", "predict", "predict_pretend", 
                             "predict_pretend_nosite"]
 
