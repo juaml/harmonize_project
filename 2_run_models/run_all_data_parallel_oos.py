@@ -57,6 +57,11 @@ parser.add_argument(
     "--random_state", type=int, default=23, help="Random State use"
 )
 
+parser.add_argument(
+    "--n_jobs", type=int, default=None, help="Numbers of jobs for predictor"
+)
+
+
 params = parser.parse_args()
 
 # Paths
@@ -74,6 +79,7 @@ problem_type = params.problem_type
 # Harmonizaton set up
 harm_n_splits = params.harm_n_splits
 harmonize_mode = params.harmonize_mode
+n_jobs = params.n_jobs
 
 
 # ######################## Models Set ups
@@ -105,7 +111,8 @@ harm_model = train_harmonizer(
     stack_model=stack_model,
     random_state=42,
     n_splits=10,
-    regression_params=regression_params
+    regression_params=regression_params,
+    n_jobs=n_jobs
 )
 
 out_fold, acc_fold = eval_harmonizer(

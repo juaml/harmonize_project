@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.ensemble import RandomForestRegressor
 
 from sklearn.metrics import (
     accuracy_score,
@@ -16,12 +17,17 @@ from juharmonize import (
 from .logging import logger
 
 
-def get_JuHarmonizeModel(problem_type, pred_model, stack_model,
-                         n_splits=10, random_state=None, 
-                         regression_points=10,
-                         regression_search=False,
-                         regression_search_tol=0,
-                         predict_ignore_site=False):
+def get_JuHarmonizeModel(
+    problem_type,
+    pred_model,
+    stack_model,
+    n_splits=10,
+    random_state=None,
+    regression_points=10,
+    regression_search=False,
+    regression_search_tol=0,
+    predict_ignore_site=False,
+):
     if problem_type == "binary_classification":
         logger.info("Using JuHarmonizeClassifier")
         logger.info(f"\tpred_model: {pred_model}")
@@ -36,7 +42,8 @@ def get_JuHarmonizeModel(problem_type, pred_model, stack_model,
             stack_model=stack_model,
             use_cv_test_transforms=True,
             random_state=random_state,
-            predict_ignore_site=predict_ignore_site)
+            predict_ignore_site=predict_ignore_site,
+        )
     else:
         logger.info("Using JuHarmonizeRegressor")
         logger.info(f"\tpred_model: {pred_model}")
@@ -57,14 +64,24 @@ def get_JuHarmonizeModel(problem_type, pred_model, stack_model,
             random_state=random_state,
             regression_search=regression_search,
             regression_search_tol=regression_search_tol,
-            predict_ignore_site=predict_ignore_site)
+            predict_ignore_site=predict_ignore_site,
+        )
     return model
 
 
 def train_harmonizer(
-        harm_type, X, y, sites, covars, pred_model,
-        stack_model=None, random_state=None, n_splits=10,
-        regression_params=None):
+    harm_type,
+    X,
+    y,
+    sites,
+    covars,
+    pred_model,
+    stack_model=None,
+    random_state=None,
+    n_splits=10,
+    regression_params=None,
+    n_jobs=None
+):
     if regression_params is None:
         regression_params = {}
     problem_type = "regression"
@@ -73,60 +90,75 @@ def train_harmonizer(
 
     logger.info(f"Training harmonizer {harm_type}")
     out = {}
-    out['problem_type'] = problem_type
-    out['harm_type']  = harm_type
-    out['pred_model'] = pred_model
-    out['harm_model'] = None
-    if harm_type == 'none':
+    out["problem_type"] = problem_type
+    out["harm_type"] = harm_type
+    out["pred_model"] = pred_model
+    out["harm_model"] = None
+    if harm_type == "none":
         logger.info("Predictive model fit")
-        out['pred_model'].fit(X, y)
+        out["pred_model"].fit(X, y)
         logger.info("Fit done")
-    elif harm_type in ['target']:
+    elif harm_type in ["target"]:
         # harmonize train and then apply to test but using labels
-        out['harm_model'] = JuHarmonize()
+        out["harm_model"] = JuHarmonize()
         logger.info("JuHarmonize fit_transform")
-        X_harm = out['harm_model'].fit_transform(X, y, sites, covars)
+        X_harm = out["harm_model"].fit_transform(X, y, sites, covars)
         logger.info("Predictive model fit")
-        out['pred_model'].fit(X_harm, y)
+        out["pred_model"].fit(X_harm, y)
         logger.info("Fit done")
-    elif harm_type == 'notarget':
-        out['harm_model'] = JuHarmonize(preserve_target=False)
+    elif harm_type == "notarget":
+        out["harm_model"] = JuHarmonize(preserve_target=False)
         logger.info("JuHarmonize fit_transform")
-        X_harm = out['harm_model'].fit_transform(X, y, sites, covars)
+        X_harm = out["harm_model"].fit_transform(X, y, sites, covars)
         logger.info("Predictive model fit")
-        out['pred_model'].fit(X_harm, y)
+        out["pred_model"].fit(X_harm, y)
         logger.info("Fit done")
-    elif harm_type == 'predict':
-        out['harm_model'] = JuHarmonizePredictor()
+    elif harm_type == "predict":
+        rf_model = RandomForestRegressor(n_jobs=n_jobs)
+        out["harm_model"] = JuHarmonizePredictor(use_disk=True, model=rf_model)
         logger.info("JuHarmonizePredictor fit_transform")
-        X_harm = out['harm_model'].fit_transform(X, y, sites, covars)
+        X_harm = out["harm_model"].fit_transform(X, y, sites, covars)
         logger.info("Predictive model fit")
-        out['pred_model'].fit(X_harm, y)
+        out["pred_model"].fit(X_harm, y)
         logger.info("Fit done")
-    elif harm_type in ['pretend', 'pretend_nosite']:
+    elif harm_type in ["pretend", "pretend_nosite"]:
         assert stack_model is not None
-        predict_ignore_site = harm_type == 'pretend_nosite'
-        out['pred_model'] = get_JuHarmonizeModel(
-            problem_type, pred_model, stack_model,
+        predict_ignore_site = harm_type == "pretend_nosite"
+        out["pred_model"] = get_JuHarmonizeModel(
+            problem_type,
+            pred_model,
+            stack_model,
             predict_ignore_site=predict_ignore_site,
-            random_state=random_state, n_splits=n_splits,
-            **regression_params)
+            random_state=random_state,
+            n_splits=n_splits,
+            **regression_params,
+        )
         logger.info("JuHarmonizeClassifier/Regressor fit")
-        out['pred_model'].fit(X, y, sites, covars)
+        out["pred_model"].fit(X, y, sites, covars)
         logger.info("Fit done")
-    elif harm_type in ['predict_pretend', 'predict_pretend_nosite']:
+    elif harm_type in ["predict_pretend", "predict_pretend_nosite"]:
         assert stack_model is not None
-        predict_ignore_site = harm_type == 'pretend_nosite'
-        out['pred_model'] = get_JuHarmonizeModel(
-            problem_type, pred_model, stack_model,
+        predict_ignore_site = harm_type == "pretend_nosite"
+        out["pred_model"] = get_JuHarmonizeModel(
+            problem_type,
+            pred_model,
+            stack_model,
             predict_ignore_site=predict_ignore_site,
-            random_state=random_state, n_splits=n_splits,
-            **regression_params)
-        out['harm_model'] = JuHarmonizePredictorCV()
+            random_state=random_state,
+            n_splits=n_splits,
+            **regression_params,
+        )
+        predictor_params = {
+            "use_disk": True,
+            "model": RandomForestRegressor(n_jobs=n_jobs),
+        }
+        out["harm_model"] = JuHarmonizePredictorCV(
+            predictor_params=predictor_params
+        )
         logger.info("JuHarmonizePredictorCV fit_transform")
-        X_harm = out['harm_model'].fit_transform(X, y, sites, covars)
+        X_harm = out["harm_model"].fit_transform(X, y, sites, covars)
         logger.info("JuHarmonizeClassifier/Regressor fit")
-        out['pred_model'].fit(X_harm, y, sites, covars)
+        out["pred_model"].fit(X_harm, y, sites, covars)
         logger.info("Fit done")
     else:
         raise ValueError(f"Unknown harm_type {harm_type}")
@@ -136,27 +168,27 @@ def train_harmonizer(
 
 def eval_harmonizer(harm, X, y, sites, covars=None):
     logger.info(f"Evaluation harmonizer")
-    if harm['harm_type'] == 'none':
-        out = harm['pred_model'].predict(X)
-    elif harm['harm_type'] == 'target':
+    if harm["harm_type"] == "none":
+        out = harm["pred_model"].predict(X)
+    elif harm["harm_type"] == "target":
         assert y is not None
-        X = harm['harm_model'].transform(X, y, sites, covars)
-        out = harm['pred_model'].predict(X)
-    elif harm['harm_type'] == 'notarget':
-        X = harm['harm_model'].transform(X, y, sites, covars)
-        out = harm['pred_model'].predict(X)
-    elif harm['harm_type'] == 'predict':
-        X = harm['harm_model'].transform(X)
-        out = harm['pred_model'].predict(X)
-    elif harm['harm_type'] in ['pretend', 'pretend_nosite']:
-        out = harm['pred_model'].predict(X, sites, covars)
-    elif harm['harm_type'] in ['predict_pretend', 'predict_pretend_nosite']:
-        X = harm['harm_model'].transform(X)
-        out = harm['pred_model'].predict(X, sites, covars)
+        X = harm["harm_model"].transform(X, y, sites, covars)
+        out = harm["pred_model"].predict(X)
+    elif harm["harm_type"] == "notarget":
+        X = harm["harm_model"].transform(X, y, sites, covars)
+        out = harm["pred_model"].predict(X)
+    elif harm["harm_type"] == "predict":
+        X = harm["harm_model"].transform(X)
+        out = harm["pred_model"].predict(X)
+    elif harm["harm_type"] in ["pretend", "pretend_nosite"]:
+        out = harm["pred_model"].predict(X, sites, covars)
+    elif harm["harm_type"] in ["predict_pretend", "predict_pretend_nosite"]:
+        X = harm["harm_model"].transform(X)
+        out = harm["pred_model"].predict(X, sites, covars)
     else:
         raise ValueError(f"Unknown harm_type: {harm['harm_type']}")
 
-    if harm['problem_type'] == 'binary_classification':
+    if harm["problem_type"] == "binary_classification":
         acc = accuracy_score(y, out)
     else:
         acc = r2_score(y, out)

@@ -77,6 +77,10 @@ parser.add_argument(
     "--random_state", type=int, default=23, help="Random State use"
 )
 
+parser.add_argument(
+    "--n_jobs", type=int, default=None, help="Numbers of jobs for predictor"
+)
+
 params = parser.parse_args()
 
 # Paths
@@ -96,6 +100,7 @@ fold_to_do = params.fold
 # Harmonizaton set up
 harm_n_splits = params.harm_n_splits
 harmonize_mode = params.harmonize_mode
+n_jobs = params.n_jobs
 
 
 # ######################## Models Set ups
@@ -154,6 +159,7 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
         random_state=42,
         n_splits=harm_n_splits,
         regression_params=regression_params,
+        n_jobs=n_jobs
     )
 
     out_fold, acc_fold = eval_harmonizer(
