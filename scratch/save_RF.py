@@ -24,8 +24,8 @@ from lib.utils import check_params
 
 features = 3610
 
-random_vector = np.random.rand(1,features)
-random_vector_1 = np.random.rand(1,features)
+random_vector = np.random.rand(features,1)
+random_vector_1 = np.random.rand(features,1)
 
 rf = RFR()
 

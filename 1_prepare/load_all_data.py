@@ -162,23 +162,42 @@ def get_OASIS3_dataset(main_dir,sites_use,data_name,metadata):
 
     return X , metadata
 
+def save_dataset(X, Y, sites_use, save_dir):
+    # Sort everything with subjects
+    X_final = X.sort_values(1)
+    Y_final = Y.sort_values("subject")
+    subject_Y = Y_final["subject"].reset_index()
+    subject_X = X_final[1].reset_index()
+
+    assert subject_Y["subject"].equals(subject_X[1])
+    # delete sites, subject for the X data
+    X_final = X_final.drop([0,1], axis=1)
+
+    Y_final = Y_final[["site","subject","age","gender"]]
+    print(sites_use+" :" + str(len(np.unique(Y_final["subject"]))))
+    X_final.to_csv(save_dir+"X_"data_name+".csv", index=False)
+    Y_final.to_csv(save_dir+"Y_"data_name+".csv", index=False)
+
+    return
+
 ############################################
-main_dir = "/home/nnieto/Nico/Harmonization/data/"
+metadata_dir = "/home/nnieto/Nico/Harmonization/data/"
 metadata_name = "meta_data"
-metadata = pd.read_csv(main_dir+metadata_name)
-main_dir = "/home/nnieto/Nico/Harmonization/data/extracted_data/"
+metadata = pd.read_csv(metadata_dir+metadata_name)
+main_dir = "/data/project/harmonize/data/CAT/s4_r8"
+save_dir = "/data/project/harmonize/data/CAT/s4_r8/final_data_split"
 ############################################
 
 sites_use = ["1000Gehirne"]
 data_name = "1000brains.txt"
 X_1000Gehirne, Y_1000Gehirne = get_1000_dataset(main_dir,sites_use,data_name,metadata)
-assert len(np.unique(Y_1000Gehirne["subject"], len(np.unique(X_1000Gehirne[1]))))
+save_dataset(X_1000Gehirne, Y_1000Gehirne, sites_use, save_dir)
 ############################################
 
 sites_use = ["CamCAN"]
 data_name = "CamCAN.txt"
 X_CamCAN, Y_CamCAN= get_dataset(main_dir,sites_use,data_name,metadata)
-assert len(np.unique(Y_CamCAN["subject"], len(np.unique(X_CamCAN[1]))))
+save_dataset(X_CamCAN, Y_CamCAN, sites_use, save_dir)
 ############################################
 
 sites_use = ['BMB_1', 'BNU_1' ,'BNU_2', 'BNU_3' ,'HNU_1',
@@ -190,99 +209,49 @@ sites_use = ['BMB_1', 'BNU_1' ,'BNU_2', 'BNU_3' ,'HNU_1',
 
 data_name = "CoRR.txt"
 X_Corr ,  Y_Corr = get_CoRR_dataset(main_dir,sites_use,data_name,metadata)
-assert len(np.unique(Y_Corr["subject"], len(np.unique(X_Corr[1]))))
+sites_use = ["CoRR"]
+save_dataset(X_Corr, Y_Corr, sites_use, save_dir)
 ############################################
 
 sites_use = ["HCP"]
 data_name = "hcp.txt"
 X_HCP, Y_HCP = get_dataset(main_dir,sites_use,data_name,metadata)
-assert len(np.unique(Y_HCP["subject"], len(np.unique(X_HCP[1]))))
+save_dataset(X_HCP, Y_HCP, sites_use, save_dir)
 ############################################
 
 sites_use = ["IXI/Guys","IXI/HH","IXI/IOP"]
 data_name = "ixi.txt"
 X_IXI, Y_IXI = get_dataset(main_dir,sites_use,data_name,metadata)
-assert len(np.unique(Y_IXI["subject"], len(np.unique(X_IXI[1]))))
+sites_use = ["IXI"]
+save_dataset(X_IXI, Y_IXI, sites_use, save_dir)
 ############################################
 
 sites_use = ["OASIS3"]
 data_name = "OASIS3.txt"
 X_OASIS3, Y_OASIS3 = get_OASIS3_dataset(main_dir,sites_use,data_name,metadata)
-assert len(np.unique(Y_OASIS3["subject"], len(np.unique(X_OASIS3[1]))))
+save_dataset(X_OASIS3, Y_OASIS3, sites_use, save_dir)
 
 ############################################
 
 sites_use = ["ID1000"]
 data_name = "aomic.txt"
 X_AOMIC, Y_AOMIC = get_AOMIC_1000(main_dir,sites_use,data_name,metadata)
-assert len(np.unique(Y_AOMIC["subject"], len(np.unique(X_AOMIC[1]))))
+save_dataset(X_AOMIC, Y_AOMIC, sites_use, save_dir)
 ############################################
 
 sites_use = ["PIOP1"]
 data_name = "aomic-piop1.txt"
 X_AOMIC_PIOP1, Y_AOMIC_PIOP1 = get_AOMIC_PIOP1(main_dir,sites_use,data_name,metadata)
-
-assert len(np.unique(Y_AOMIC_PIOP1["subject"], len(np.unique(X_AOMIC_PIOP1[1]))))
+save_dataset(X_AOMIC_PIOP1, Y_AOMIC_PIOP1, sites_use, save_dir)
 ############################################
 
 sites_use = ["PIOP2"]
 data_name = "aomic-piop2.txt"
 X_AOMIC_PIOP2, Y_AOMIC_PIOP2 = get_AOMIC_PIOP2(main_dir,sites_use,data_name,metadata)
-
-assert len(np.unique(Y_AOMIC_PIOP2["subject"], len(np.unique(X_AOMIC_PIOP2[1]))))
+save_dataset(X_AOMIC_PIOP2, Y_AOMIC_PIOP2, sites_use, save_dir)
 ############################################
 
 sites_use = ["eNKI"]
 data_name = "eNKI.txt"
 X_eNKI, Y_eNKI = get_1000_dataset(main_dir,sites_use,data_name,metadata)
-assert len(np.unique(Y_eNKI["subject"], len(np.unique(X_eNKI[1]))))
-############################################
-
-X_final = pd.concat([X_1000Gehirne,X_AOMIC,X_AOMIC_PIOP1,X_AOMIC_PIOP2,
-                        X_CamCAN, X_Corr,X_eNKI,X_HCP,
-                        X_IXI,X_OASIS3])
-
-Y_final = pd.concat([Y_1000Gehirne,Y_AOMIC,Y_AOMIC_PIOP1,Y_AOMIC_PIOP2,
-                        Y_CamCAN, Y_Corr, Y_eNKI, Y_HCP,
-                        Y_IXI, Y_OASIS3])
-
-
-# Sort everything with subjects
-X_final = X_final.sort_values(1)
-Y_final = Y_final.sort_values("subject")
-
-subject_Y = Y_final["subject"].reset_index()
-subject_X = X_final[1].reset_index()
-
-assert subject_Y["subject"].equals(subject_X[1])
-
-
-# delete sites, subject and last column
-X_final = X_final.drop([0,1,3749], axis=1)
-
-Y_final = Y_final[["site","subject","age","gender"]]
-
-print("1000Gehirne:" + str(len(np.unique(Y_1000Gehirne["subject"]))))
-print("Corr:" + str(len(np.unique(Y_Corr["subject"]))))
-print("eNKI:" + str(len(np.unique(Y_eNKI["subject"]))))
-print("AOMIC_PIOP2:" + str(len(np.unique(Y_AOMIC_PIOP2["subject"]))))
-print("AOMIC_PIOP1:" + str(len(np.unique(Y_AOMIC_PIOP1["subject"]))))
-print("AOMIC:" + str(len(np.unique(Y_AOMIC["subject"]))))
-print("OASIS3:" + str(len(np.unique(Y_OASIS3["subject"]))))
-print("IXI:" + str(len(np.unique(Y_IXI["subject"]))))
-print("CamCAN:" + str(len(np.unique(Y_CamCAN["subject"]))))
-print("HCP:" + str(len(np.unique(Y_HCP["subject"]))))
-
-print("All data: " + str(len(np.unique(Y_final["subject"]))))
-
-
-del X_1000Gehirne,X_AOMIC,X_AOMIC_PIOP1,X_AOMIC_PIOP2, subject_Y
-del X_CamCAN, X_Corr,X_eNKI,X_HCP,X_IXI,X_OASIS3, subject_X
-del Y_1000Gehirne,Y_AOMIC,Y_AOMIC_PIOP1,Y_AOMIC_PIOP2
-del Y_CamCAN, Y_Corr, Y_eNKI, Y_HCP, Y_IXI, Y_OASIS3
-del metadata_name,  data_name, sites_use, metadata, main_dir
-
-
-X_final.to_csv("/home/nnieto/Nico/Harmonization/data/X_final.csv", index=False)
-Y_final.to_csv("/home/nnieto/Nico/Harmonization/data/Y_final.csv", index=False)
-#%%
+save_dataset(X_eNKI, Y_eNKI, sites_use, save_dir)
