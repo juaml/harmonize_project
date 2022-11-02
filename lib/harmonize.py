@@ -139,7 +139,7 @@ def train_harmonizer(
         logger.info("Fit done")
     elif harm_type in ["predict_pretend", "predict_pretend_nosite"]:
         assert stack_model is not None
-        predict_ignore_site = harm_type == "pretend_nosite"
+        predict_ignore_site = harm_type == "predict_pretend_nosite"
         out["pred_model"] = get_JuHarmonizeModel(
             problem_type,
             pred_model,
