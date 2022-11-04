@@ -15,8 +15,6 @@ experiments_to_check = "overfit_all_regression"
 scoring = mean_absolute_error
 select_ks = list(range(100, 3401, 100))
 
-
-
 all_summaries = []
 for k in select_ks:
     experiment = f"{experiments_to_check}_{k}"
@@ -33,20 +31,19 @@ for k in select_ks:
     if len(all_dfs) == 0:
         continue
     results_df = pd.concat(all_dfs)
-    if "fold" in results_df.columns:
-        summary_df = results_df.groupby(
-            ["kind", "harmonize_mode", "fold"]).apply(
-                lambda x: scoring(x.y_true, x.y_pred)).groupby(
-                    ["kind", "harmonize_mode"]).agg(mean=np.mean, count=len)
-    else:
-        summary_df = results_df.groupby(
-            ["kind", "harmonize_mode"]).apply(lambda x: scoring(x.y_true, x.y_pred))
-
+    summary_df = results_df.groupby(
+        ["kind", "harmonize_mode", "fold"]).apply(
+            lambda x: scoring(x.y_true, x.y_pred))
     # print(f"Experiment: {experiment}")
     # print(summary_df)
     # print("\n")
+    summary_df.name = "mae"
+    summary_df = summary_df.reset_index()
     summary_df["k"] = k
     all_summaries.append(summary_df)
 
 all_summaries_df = pd.concat(all_summaries)
-print(all_summaries_df)
+out_path = Path(results_path) / "collected"
+out_path.mkdir(exist_ok=True)
+
+all_summaries_df.to_csv(out_path / "summaries.csv", sep=";", index=False)

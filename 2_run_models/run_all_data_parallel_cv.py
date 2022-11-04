@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import KFold
-from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import SelectKBest, f_regression, f_classif
 
 # from sklearn.ensemble import RandomForestRegressor as RFR
 
@@ -71,11 +71,13 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--select_k", type=int, default=-1,
+    "--select_k",
+    type=int,
+    default=-1,
     help=(
         "Numbers of features to select using SelectKBest. "
         "If -1 (default), use all features."
-    )
+    ),
 )
 
 parser.add_argument(
@@ -150,7 +152,10 @@ if select_k > 0:
         raise ValueError(
             f"Cannot select {select_k} features from {X.shape[1]} features."
         )
-    fselect = SelectKBest(k=select_k)
+    if problem_type == "regression":
+        fselect = SelectKBest(score_func=f_regression, k=select_k)
+    else:
+        fselect = SelectKBest(score_func=f_classif, k=select_k)
     X = fselect.fit_transform(X, y)
     assert X.shape[1] == select_k
 
@@ -189,8 +194,8 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
         random_state=random_state,
         n_splits=harm_n_splits,
         regression_params=regression_params,
-        use_disk = use_disk,
-        n_jobs=n_jobs
+        use_disk=use_disk,
+        n_jobs=n_jobs,
     )
 
     out_fold, acc_fold = eval_harmonizer(
@@ -205,8 +210,10 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
         harmonize_mode = "cheat"
 
     logger.info("================================")
-    logger.info(f"\tFOLD {i_fold} - TEST SCORE: {acc_fold} "
-                f"- TRAIN SCORE: {acc_fold_train}")
+    logger.info(
+        f"\tFOLD {i_fold} - TEST SCORE: {acc_fold} "
+        f"- TRAIN SCORE: {acc_fold_train}"
+    )
     logger.info("================================")
 
     # Save TEST results
