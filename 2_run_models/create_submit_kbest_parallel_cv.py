@@ -8,7 +8,7 @@ log_dir.mkdir(exist_ok=True)
 env = "juharmonize"
 
 data_dir = "/data/project/harmonize/data/CAT/s4_r8/"
-save_dir = Path("/data/project/harmonize/results/")
+save_dir = Path("/data/project/harmonize/results_kbest/")
 
 
 exp_params = {
