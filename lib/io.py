@@ -84,13 +84,13 @@ def set_argparse_params(parser, use_oos=False):
         "--n_high_var_feats",
         type=int,
         default=100,
-        help="High variance features",
+        help="High variance features. Use -1 to disable.",
     )
     parser.add_argument(
         "--unify_sites",
         nargs="+",
         type=str,
-        default= None,
+        default=None,
         help="Sites to unify",
     )
     parser.add_argument(
@@ -204,12 +204,17 @@ def postprocess_data(
         # Identify variables with low variance
         var_ix = colvar > 10e-5
         idxvar = np.argsort(-colvar)
-        logger.info("Deleting: " + str(idxvar.shape[0]-np.count_nonzero(var_ix))+ " features with low variance")
-         # Delet variables with low variance
+        logger.info(
+            "Deleting: "
+            + str(idxvar.shape[0] - np.count_nonzero(var_ix))
+            + " features with low variance"
+        )
+        # Delet variables with low variance
         idxvar = idxvar[var_ix]
-        # Keep the minimun of 
-        id_keep = np.min([n_high_var_feats, idxvar.shape[0]])
-        idxvar = idxvar[range(0, id_keep)]
+        if n_high_var_feats > 0:
+            # Keep the minimun of
+            id_keep = np.min([n_high_var_feats, idxvar.shape[0]])
+            idxvar = idxvar[range(0, id_keep)]
 
     X = X[:, idxvar]
 

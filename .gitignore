@@ -130,3 +130,5 @@ cython_debug/
 
 # OS Stuff
 .DS_store
+
+*.submit

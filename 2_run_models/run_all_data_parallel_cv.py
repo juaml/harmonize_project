@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import KFold
+from sklearn.feature_selection import SelectKBest
 
 # from sklearn.ensemble import RandomForestRegressor as RFR
 
@@ -68,6 +69,15 @@ parser.add_argument(
 parser.add_argument(
     "--n_splits", type=int, default=3, help="Numbers of CV folds"
 )
+
+parser.add_argument(
+    "--select_k", type=int, default=-1,
+    help=(
+        "Numbers of features to select using SelectKBest. "
+        "If -1 (default), use all features."
+    )
+)
+
 parser.add_argument(
     "--fold",
     type=int,
@@ -105,7 +115,7 @@ n_splits = params.n_splits
 random_state = params.random_state
 problem_type = params.problem_type
 fold_to_do = params.fold
-
+select_k = params.select_k
 
 # Harmonizaton set up
 harm_n_splits = params.harm_n_splits
@@ -133,6 +143,16 @@ if problem_type == "regression":
 # ######################## Data loading and preprocessing
 data = io.get_MRI_data(params, problem_type, use_oos=False)
 X, y, sites, covars = data  # type: ignore
+
+if select_k > 0:
+    logger.info(f"Selecting {select_k} best features.")
+    if select_k > X.shape[1]:
+        raise ValueError(
+            f"Cannot select {select_k} features from {X.shape[1]} features."
+        )
+    fselect = SelectKBest(k=select_k)
+    X = fselect.fit_transform(X, y)
+    assert X.shape[1] == select_k
 
 cheat = False
 if harmonize_mode == "cheat":
@@ -177,16 +197,33 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
         harm_model, X_test, y_test, sites_test, covars_test
     )
 
+    out_fold_train, acc_fold_train = eval_harmonizer(
+        harm_model, X_train, y_train, sites_train, covars_train
+    )
+
     if cheat is True:
         harmonize_mode = "cheat"
 
     logger.info("================================")
-    logger.info(f"\tFOLD {i_fold} - SCORE: {acc_fold}")
+    logger.info(f"\tFOLD {i_fold} - TEST SCORE: {acc_fold} "
+                f"- TRAIN SCORE: {acc_fold_train}")
     logger.info("================================")
 
+    # Save TEST results
     out_fname = f"{harmonize_mode}_fold_{i_fold}_of_{n_splits}_out.csv"
     to_save = pd.DataFrame(
         {"y_true": y_test, "y_pred": out_fold, "site": sites_test}
+    )
+    to_save["harmonize_mode"] = harmonize_mode
+    to_save["fold"] = i_fold
+    out_path = save_dir / out_fname
+    logger.info(f"Saving dataframe in {out_path.as_posix()}")
+    to_save.to_csv(out_path, sep=";")
+
+    # Save TRAIN results
+    out_fname = f"{harmonize_mode}_fold_{i_fold}_of_{n_splits}_train.csv"
+    to_save = pd.DataFrame(
+        {"y_true": y_train, "y_pred": out_fold_train, "site": sites_train}
     )
     to_save["harmonize_mode"] = harmonize_mode
     to_save["fold"] = i_fold
