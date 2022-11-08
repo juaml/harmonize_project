@@ -39,13 +39,15 @@ harmonize_modes = [
     # ["predict_pretend_nosite", "20G", 10, "1500G"],
 ]
 n_splits = 5
+n_repeats = 10
 
 
 exec_name = (
     "run_all_data_parallel_cv.py "
     f"--data_dir {data_dir} "
     f"--save_dir {save_dir.as_posix()}/$(exp_name) "
-    "--n_splits $(n_splits) "
+    f"--n_splits {n_splits} "
+    f"--n_repeats {n_repeats} "
     "--fold $(fold) "
     "--harmonize_mode $(harmonize_mode) "
     "--n_jobs $(cpus) "
@@ -93,7 +95,7 @@ with open("all_data_kbest_parallel_cv.submit", "w") as f:
         t_save_dir = save_dir / exp_name
         t_save_dir.mkdir(exist_ok=True, parents=True)
         for t_mode, memory, cpus, disk in harmonize_modes:
-            for i_fold in range(n_splits):
+            for i_fold in range(n_splits * n_repeats):
                 f.write(f"exp_name={exp_name}\n")
                 f.write(f"memory={memory}\n")
                 f.write(f"cpus={cpus}\n")
@@ -101,5 +103,4 @@ with open("all_data_kbest_parallel_cv.submit", "w") as f:
                 f.write(f"args={args}\n")
                 f.write(f"harmonize_mode={t_mode}\n")
                 f.write(f"fold={i_fold}\n")
-                f.write(f"n_splits={n_splits}\n")
                 f.write("queue\n\n")

@@ -17,6 +17,7 @@ select_ks = list(range(100, 3401, 100))
 
 all_summaries = []
 for k in select_ks:
+    print(f"Checking k={k}")
     experiment = f"{experiments_to_check}_{k}"
     in_path = Path(results_path) / experiment
 
@@ -32,7 +33,7 @@ for k in select_ks:
         continue
     results_df = pd.concat(all_dfs)
     summary_df = results_df.groupby(
-        ["kind", "harmonize_mode", "fold"]).apply(
+        ["kind", "harmonize_mode", "fold", "repeat"]).apply(
             lambda x: scoring(x.y_true, x.y_pred))
     # print(f"Experiment: {experiment}")
     # print(summary_df)

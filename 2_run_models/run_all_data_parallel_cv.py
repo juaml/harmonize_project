@@ -1,7 +1,7 @@
 # %%
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold, RepeatedKFold
 from sklearn.feature_selection import SelectKBest, f_regression, f_classif
 
 # from sklearn.ensemble import RandomForestRegressor as RFR
@@ -86,6 +86,15 @@ parser.add_argument(
     default=-1,
     help="If -1, run all folds, otherwise run the specified fold",
 )
+
+parser.add_argument(
+    "--n_repeats",
+    type=int,
+    default=1,
+    help=("Number of CV repeats. If 1 (default), use KFold, "
+          "otherwise use RepeatedKFold"),
+)
+
 parser.add_argument(
     "--random_state", type=int, default=23, help="Random State use"
 )
@@ -114,6 +123,7 @@ logger.info(f"Saving results in {save_dir.as_posix()}")
 
 # General
 n_splits = params.n_splits
+n_repeats = params.n_repeats
 random_state = params.random_state
 problem_type = params.problem_type
 fold_to_do = params.fold
@@ -129,9 +139,17 @@ use_disk = params.use_disk
 
 pred_model, stack_model = ml.get_models(params, problem_type)
 
-# Cross varidation Parameters
-kf = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
-
+if n_repeats == 1:
+    # Cross varidation Parameters
+    kf = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
+elif n_repeats < 1:
+    raise ValueError("n_repeats must be >= 1")
+else:
+    kf = RepeatedKFold(
+        n_splits=n_splits,
+        n_repeats=n_repeats,
+        random_state=random_state,
+    )
 
 regression_params = None
 if problem_type == "regression":
@@ -216,13 +234,18 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
     )
     logger.info("================================")
 
+    # cv_fold = i_fold % n_repeats
+    cv_fold = i_fold % n_splits
+    n_repeat = i_fold // n_splits
+
     # Save TEST results
     out_fname = f"{harmonize_mode}_fold_{i_fold}_of_{n_splits}_out.csv"
     to_save = pd.DataFrame(
         {"y_true": y_test, "y_pred": out_fold, "site": sites_test}
     )
     to_save["harmonize_mode"] = harmonize_mode
-    to_save["fold"] = i_fold
+    to_save["fold"] = cv_fold
+    to_save["repeat"] = n_repeat
     out_path = save_dir / out_fname
     logger.info(f"Saving dataframe in {out_path.as_posix()}")
     to_save.to_csv(out_path, sep=";")
@@ -233,7 +256,8 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
         {"y_true": y_train, "y_pred": out_fold_train, "site": sites_train}
     )
     to_save["harmonize_mode"] = harmonize_mode
-    to_save["fold"] = i_fold
+    to_save["fold"] = cv_fold
+    to_save["repeat"] = n_repeat
     out_path = save_dir / out_fname
     logger.info(f"Saving dataframe in {out_path.as_posix()}")
     to_save.to_csv(out_path, sep=";")
