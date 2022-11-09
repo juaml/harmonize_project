@@ -201,6 +201,9 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
         test_index, X, sites, y, covars
     )
 
+    if params.pred_model == "rvc":
+        pred_model.coef1 = 1/(X_train.shape[1]*X_train.var())
+
     harm_model = train_harmonizer(
         harmonize_mode,
         X_train,
