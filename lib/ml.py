@@ -69,7 +69,9 @@ def get_models(params, problem_type):
         elif pred_model == "svm":
             pred_model = SVC(probability=True, kernel="linear")
         elif pred_model == "rvc":
-            pred_model = RVC(kernel="poly", degree=1)
+            # pred_model = RVC(kernel="poly", degree=1)
+            pred_model = EMRVC(kernel="poly", degree=1, gamma='scale', bias_used=True)   
+
     else:
         # ['gsgpr', 'gssvm', 'ridgecv', 'rvr'],
         if pred_model == "gssvm":
@@ -95,8 +97,7 @@ def get_models(params, problem_type):
         elif pred_model == "ridgecv":
             pred_model = RidgeCV()
         elif pred_model == "rvr":
-            # pred_model = RVR(kernel="poly", degree=1)
-            pred_model = EMRVC(kernel="poly", degree=1, gamma='scale', bias_used=True)   
+            pred_model = RVR(kernel="poly", degree=1)
         else:
             raise ValueError("Regression model not supported")
 
