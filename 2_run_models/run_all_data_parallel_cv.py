@@ -188,11 +188,6 @@ if select_k > 0:
     assert X.shape[1] == select_k
 
 
-if params.TIV_percentage > 0:
-    logger.info(f"Delete the {params.TIV_percentage}% of subjects with more extreme TIV for each gender.")
-    X, y = remove_extreme_TIV(X,y,params.TIV_percentage)
-
-
 cheat = False
 if harmonize_mode == "cheat":
     logger.info("Cheat mode")

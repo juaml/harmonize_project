@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-from .utils import show_hist
+from .utils import show_hist, remove_extreme_TIV
 from .logging import logger
 
 
@@ -253,6 +253,10 @@ def get_MRI_data(params, problem_type, use_oos=False):
     covars = params.covars
 
     X_df, Y_df = load_sites_data(data_dir, sites_use)
+
+    if params.TIV_percentage > 0:
+        logger.info(f"Delete the {params.TIV_percentage}% of subjects with more extreme TIV for each gender.")
+        X_df, Y_df = remove_extreme_TIV(X_df,Y_df,params.TIV_percentage)
 
     X, y, sites, idxvar = postprocess_data(
         X_df,
