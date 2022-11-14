@@ -114,3 +114,47 @@ def check_params(params):
         ValueError("Invalid harmonization method")
 
     return 
+
+def remove_extreme_TIV(X,Y,TIV_percentage):
+
+    # Get each gender
+    male = Y[Y["gender"]=="M"]
+    female = Y[Y["gender"]=="F"]
+
+    # Select males
+    num_to_delete = male.shape[0] - np.round(male.shape[0] * TIV_percentage / 100).astype(int)
+
+    gender_TIV = male["TIV"]
+
+    sort_index = np.argsort(gender_TIV.to_numpy())
+
+    TIV_to_remove = male.iloc[sort_index[num_to_delete],4]
+
+    mask = np.where(gender_TIV>TIV_to_remove)
+
+    male.reset_index(inplace=True)
+
+    males_to_keep = male.drop(mask[0])
+
+    # select females
+    num_to_delete =  np.round(female.shape[0] * TIV_percentage / 100).astype(int)
+
+    gender_TIV = female["TIV"]
+
+    sort_index = np.argsort(gender_TIV.to_numpy())
+
+    TIV_to_remove = female.iloc[sort_index[num_to_delete],4]
+
+    mask = np.where(gender_TIV<TIV_to_remove)
+
+    female.reset_index(inplace=True)
+    females_to_keep = female.drop(mask[0])
+
+    index_to_keep = pd.concat([males_to_keep["index"],females_to_keep["index"]])
+
+    y_tvi = Y.drop(index_to_keep)
+
+    Y_final = Y.drop(y_tvi.index)
+    X_final = X.drop(y_tvi.index)
+
+    return X_final, Y_final

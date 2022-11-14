@@ -20,7 +20,7 @@ from lib.harmonize import eval_harmonizer, train_harmonizer  # noqa
 from lib import io  # noqa
 from lib import ml  # noqa
 from lib.logging import logger, configure_logging  # noqa
-from lib.utils import check_params
+from lib.utils import check_params, remove_extreme_TIV
 
 # Running Parameters
 
@@ -77,6 +77,16 @@ parser.add_argument(
     help=(
         "Numbers of features to select using SelectKBest. "
         "If -1 (default), use all features."
+    ),
+)
+
+parser.add_argument(
+    "--TIV_percentage",
+    type=int,
+    default=-1,
+    help=(
+        "Percentage of participants for each gender to filter by extreme TIV. "
+        "If -1 (default), use all subjects."
     ),
 )
 
@@ -176,6 +186,12 @@ if select_k > 0:
         fselect = SelectKBest(score_func=f_classif, k=select_k)
     X = fselect.fit_transform(X, y)
     assert X.shape[1] == select_k
+
+
+if params.TIV_percentage > 0:
+    logger.info(f"Delete the {params.TIV_percentage}% of subjects with more extreme TIV for each gender.")
+    X, y = remove_extreme_TIV(X,y,params.TIV_percentage)
+
 
 cheat = False
 if harmonize_mode == "cheat":

@@ -175,8 +175,8 @@ def save_dataset(X, Y, sites_use, save_dir):
 
     Y_final = Y_final[["site","subject","age","gender"]]
     print(sites_use+" :" + str(len(np.unique(Y_final["subject"]))))
-    X_final.to_csv(save_dir+"X_"data_name+".csv", index=False)
-    Y_final.to_csv(save_dir+"Y_"data_name+".csv", index=False)
+    X_final.to_csv(save_dir+"X_"+data_name+".csv", index=False)
+    Y_final.to_csv(save_dir+"Y_"+data_name+".csv", index=False)
 
     return
 

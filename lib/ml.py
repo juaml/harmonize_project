@@ -11,7 +11,7 @@ from sklearn.linear_model import RidgeCV
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC, SVR
 from skrvm import RVR, RVC
-
+from sklearn_rvm import EMRVC
 from .utils import logger
 
 _valid_models = {
@@ -95,7 +95,8 @@ def get_models(params, problem_type):
         elif pred_model == "ridgecv":
             pred_model = RidgeCV()
         elif pred_model == "rvr":
-            pred_model = RVR(kernel="poly", degree=1)
+            # pred_model = RVR(kernel="poly", degree=1)
+            pred_model = EMRVC(kernel="poly", degree=1, gamma='scale', bias_used=True)   
         else:
             raise ValueError("Regression model not supported")
 
