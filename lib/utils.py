@@ -2,9 +2,16 @@
 import numpy as np
 import pandas as pd
 import termplotlib as tpl
-
+import matplotlib.pyplot as plt
+import seaborn as sbn
 from .logging import logger
+from pathlib import Path
 
+from sklearn.metrics import (
+    accuracy_score,
+    r2_score,
+    mean_absolute_error,
+)
 
 def get_site_index(sites, sites_use):
     idx = np.zeros(len(sites))
@@ -158,3 +165,152 @@ def remove_extreme_TIV(X,Y,TIV_percentage):
     X_final = X.drop(y_tvi.index)
 
     return X_final, Y_final
+
+def table_generation(data, stats=["Age_bias","R2","MAE"]):
+
+    harm_modes = np.unique(data["harmonize_mode"])
+    table = pd.DataFrame(columns=harm_modes,index=stats)
+
+    for mode in harm_modes:
+        resut_mode = data[data["harmonize_mode"]==mode]
+
+        predicted_age = resut_mode["y_pred"]
+        true_age = resut_mode["y_true"]
+
+        final_stat = []
+        for stat in stats:
+            if stat == "Age_bias":
+                age_bias = np.corrcoef(true_age, predicted_age-true_age)[0,1]
+                final_stat = np.append(final_stat,age_bias)
+            elif stat == "R2":
+                r2_data = r2_score(true_age,predicted_age)
+                final_stat = np.append(final_stat,r2_data)
+            elif stat == "MAE":
+                error_data = mean_absolute_error(true_age,np.round(predicted_age))
+                final_stat = np.append(final_stat,error_data)
+
+
+        table[mode] = final_stat
+
+    return table.T
+
+
+
+def plot_barplot(data,exlude_notarget = True, absolute_error = True):
+    harm_modes = np.unique(data["harmonize_mode"]).tolist()   
+    if exlude_notarget:
+        harm_modes.remove("notarget")
+  
+    final_stat = []
+    for mode in harm_modes:
+        resut_mode = data[data["harmonize_mode"]==mode]
+        predicted_age = resut_mode["y_pred"]
+        true_age = resut_mode["y_true"]
+        error_data = mean_absolute_error(true_age,np.round(predicted_age))
+        final_stat = np.append(final_stat,error_data)
+
+    to_sort= [harm_modes,final_stat]
+    df = pd.DataFrame(to_sort,index=["method","value"])
+    df = df.sort_values(by="value",axis=1)
+    df = df.T
+    sort_mode = df["method"]
+
+    if absolute_error:
+        data["y_diff"] = np.abs(data["y_true"] - np.round(data["y_pred"]))
+    else: 
+        data["y_diff"] = data["y_true"] - np.round(data["y_pred"])
+
+    plt.figure(figsize=[30,15])
+    sbn.boxenplot(data, y = "y_diff", x = "harmonize_mode", order = sort_mode)
+
+    return
+
+def plot_grup_barplot(data, exlude_notarget = True, absolute_error = True):
+    harm_modes = np.unique(data["harmonize_mode"]).tolist()   
+
+    if exlude_notarget:
+        # Check the experiment have no target
+        if "notarget" in harm_modes:
+            harm_modes.remove("notarget")
+
+    final_stat = []
+    for mode in harm_modes:
+        resut_mode = data[data["harmonize_mode"]==mode]
+        predicted_age = resut_mode["y_pred"]
+        true_age = resut_mode["y_true"]
+        error_data = mean_absolute_error(true_age,np.round(predicted_age))
+        final_stat = np.append(final_stat,error_data)
+
+    to_sort= [harm_modes,final_stat]
+    df = pd.DataFrame(to_sort,index=["method","value"])
+    df = df.sort_values(by="value",axis=1)
+    df = df.T
+    sort_mode = df["method"]
+
+    if absolute_error:
+        data["y_diff"] = np.abs(data["y_true"]-data["y_pred"])
+    else:
+        data["y_diff"] = data["y_true"]-data["y_pred"]
+
+
+    g = sbn.catplot(
+        data=data, kind= "boxen",
+        x="site", y= "y_diff", hue="harmonize_mode", 
+        height=6, hue_order=sort_mode
+    )
+    g.set_axis_labels("", "Prediction difference")
+    g.legend.set_title("CV experiment")
+    plt.grid(alpha=0.5,axis="y", c="black")
+
+    return
+
+
+def extract_experiment_data(exp_dir, exp_name):
+    for experiment in exp_name:
+        in_path = Path(exp_dir) / experiment
+
+        all_dfs = []
+        for t_fname in in_path.glob('*out.csv'):
+            all_dfs.append(pd.read_csv(t_fname, sep=';'))
+
+        results_df = pd.concat(all_dfs)
+    return results_df
+
+
+def extract_experiment_data_oos(exp_dir, exp_name):
+    for experiment in exp_name:
+        in_path = Path(exp_dir) / experiment
+
+        all_dfs = []
+        for t_fname in in_path.glob('*out.csv'):
+            df = pd.read_csv(t_fname, sep=';')
+
+            all_dfs.append(df)  
+
+        results_df = pd.concat(all_dfs)
+    
+    return results_df
+
+
+def classification_table(data, stats=["acc"]):
+
+    harm_modes = np.unique(data["harmonize_mode"])
+    table = pd.DataFrame(columns=harm_modes,index=stats)
+
+    for mode in harm_modes:
+        resut_mode = data[data["harmonize_mode"]==mode]
+
+        predicted_gender = resut_mode["y_pred"]
+        true_gender = resut_mode["y_true"]
+
+        final_stat = []
+        for stat in stats:
+            if stat == "acc":
+                gender_acc = accuracy_score(true_gender,predicted_gender)
+                final_stat = np.append(final_stat,gender_acc)
+
+
+
+        table[mode] = final_stat
+
+    return table.T

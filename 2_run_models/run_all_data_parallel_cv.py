@@ -1,10 +1,7 @@
-# %%
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import KFold, RepeatedKFold
 from sklearn.feature_selection import SelectKBest, f_regression, f_classif
-
-# from sklearn.ensemble import RandomForestRegressor as RFR
 
 from juharmonize import JuHarmonize
 from juharmonize.utils import subset_data
@@ -168,7 +165,6 @@ if problem_type == "regression":
         "regression_search_tol": params.regression_search_tol,
         "regression_search": params.regression_search,
     }
-
 
 # ######################## Data loading and preprocessing
 data = io.get_MRI_data(params, problem_type, use_oos=False)

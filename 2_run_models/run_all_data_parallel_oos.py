@@ -137,7 +137,7 @@ logger.info(f"\tOOS - SCORE: {acc_fold}")
 logger.info("================================")
 
 out_fname = f"{harmonize_mode}_oos_out.csv"
-to_save = pd.DataFrame({"y_true": yoos, "y_pred": out_fold})
+to_save = pd.DataFrame({"y_true": yoos, "y_pred": out_fold, "site": sitesoos})
 to_save['harmonize_mode'] = harmonize_mode
 out_path = save_dir / out_fname
 logger.info(f"Saving dataframe in {out_path.as_posix()}")
