@@ -331,6 +331,7 @@ def get_MRI_data(params, problem_type, use_oos=False):
             problem_type,
             unify_sites_names,
             n_high_var_feats,
+            cutoff_age = cutoff_age,
             idxvar=idxvar,
         )
         covarsoos = None
