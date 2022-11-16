@@ -173,9 +173,10 @@ def postprocess_data(
             y = female
         else:
             logger.info("Using binarized age as target")
-            age = np.round(Y_df["age"])
-            age.loc[age["age"] < cutoff_age, "age"] = 0
-            age.loc[age["age"] >= cutoff_age, "age"] = 1
+            
+            Y_df.loc[Y_df["age"] < cutoff_age, "age"] = 0
+            Y_df.loc[Y_df["age"] >= cutoff_age, "age"] = 1
+            age = Y_df["age"]
             y = age.to_numpy()
             # filter under 18 participants
             logger.info("Filter under 18 participants")
