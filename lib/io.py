@@ -165,7 +165,7 @@ def postprocess_data(
     # Set y
     if problem_type == "binary_classification":
         
-        if cutoff_age > 0:
+        if cutoff_age < 0:
             logger.info("Converting 'gender' to binary classification")
             female = Y_df["gender"]
             female.replace(to_replace={"F": 1, "M": 0}, inplace=True)
