@@ -9,7 +9,7 @@ sys.path.append(to_append)
 
 from lib.utils import table_generation, plot_barplot, extract_experiment_data , plot_grup_barplot
 from lib.utils import classification_table
-
+#%%
 exp_dir = "/home/nnieto/Nico/Harmonization/results_r8"
 experiments_to_check = {
     'test_all_regression_r8'
@@ -57,15 +57,35 @@ results_df = extract_experiment_data(exp_dir,experiments_to_check)
 
 classification_table(results_df)
 
-#table = table_generation(results_df)
-#print(table)
 
+# %%
 
+exp_dir = "/home/nnieto/Nico/Harmonization/results_classification"
+experiments_to_check = {
+    'test_all_classification_RVC'
+}
 
-plot_grup_barplot(results_df, exlude_notarget = True, absolute_error = True, acc_bool= True)
-#plot_grup_barplot(results_df, True, False)
+results_df = extract_experiment_data(exp_dir,experiments_to_check)
 
-#plot_barplot(results_df, True, False)
-#plot_barplot(results_df, True, True)
+classification_table(results_df)
+# %%
 
+exp_dir = "/home/nnieto/Nico/Harmonization/results_classification"
+experiments_to_check = {
+    'test_all_classification_RVC_TIV_remove'
+}
+
+results_df = extract_experiment_data(exp_dir,experiments_to_check)
+
+classification_table(results_df)
+# %%
+
+exp_dir = "/home/nnieto/Nico/Harmonization/results_classification"
+experiments_to_check = {
+    'test_all_classification_RVC_TIV_remove_25'
+}
+
+results_df = extract_experiment_data(exp_dir,experiments_to_check)
+
+classification_table(results_df)
 # %%

@@ -143,7 +143,7 @@ def load_sites_data(data_dir, sites):
 
 
 def postprocess_data(
-    X_df, Y_df, problem_type, unify_sites_names, n_high_var_feats, idxvar=None
+    X_df, Y_df, problem_type, unify_sites_names, n_high_var_feats, cutoff_age, idxvar=None 
 ):
     # ############## Format data
     # Unify sites names
@@ -164,11 +164,25 @@ def postprocess_data(
 
     # Set y
     if problem_type == "binary_classification":
-        logger.info("Converting 'gender' to binary classification")
-        female = Y_df["gender"]
-        female.replace(to_replace={"F": 1, "M": 0}, inplace=True)
-        female = np.array(female)
-        y = female
+        
+        if cutoff_age > 0:
+            logger.info("Converting 'gender' to binary classification")
+            female = Y_df["gender"]
+            female.replace(to_replace={"F": 1, "M": 0}, inplace=True)
+            female = np.array(female)
+            y = female
+        else:
+            logger.info("Using binarized age as target")
+            age = np.round(Y_df["age"])
+            age.loc[age["age"] < cutoff_age, "age"] = 0
+            age.loc[age["age"] >= cutoff_age, "age"] = 1
+            y = age.to_numpy()
+            # filter under 18 participants
+            logger.info("Filter under 18 participants")
+            idx_age = y > 18
+            y = y[idx_age]
+            X = X[idx_age]
+            sites = sites[idx_age]
     else:
         logger.info("Rounding up age")
         age = np.round(Y_df["age"].to_numpy())
@@ -228,7 +242,7 @@ def get_MRI_data(params, problem_type, use_oos=False):
     unify_sites_names = params.unify_sites
     n_high_var_feats = params.n_high_var_feats
     sites_use = params.sites_use
-
+    cutoff_age = params.cutoff_age
     if sites_use == "all":
         sites_use = [
             "1000Gehirne",
@@ -264,7 +278,8 @@ def get_MRI_data(params, problem_type, use_oos=False):
         problem_type,
         unify_sites_names,
         n_high_var_feats,
-        idxvar=None,
+        cutoff_age = cutoff_age,
+        idxvar=None
     )
 
     logger.info("========= DATA INFO =========")

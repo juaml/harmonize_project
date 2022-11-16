@@ -5,9 +5,9 @@ cwd = os.getcwd()
 log_dir = Path(cwd) / "logs"
 log_dir.mkdir(exist_ok=True)
 
-env = "juharmonize"
+env = "juharmonize_R8"
 
-data_dir = "/data/project/harmonize/data/CAT/s4_r4/"
+data_dir = "/data/project/harmonize/data/CAT/s4_r8/"
 save_dir = Path("/data/project/harmonize/results/")
 
 experiments = {
@@ -51,7 +51,6 @@ experiments = {
 
 harmonize_modes = [
     ["none", "16G", 1, 0],
-    ["pretend", "16G", 1, 0],
     ["pretend_nosite", "16G", 1, 0],
     ["predict", "20G", "10", 1, "1500G"],
     ["predict_pretend", "20G", 10, 0, "1500G"],

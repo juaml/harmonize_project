@@ -88,6 +88,16 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--cutoff_age",
+    type=int,
+    default=-1,
+    help=(
+        "Limit age to binarize "
+        "If -1 (default), not used"
+    ),
+)
+
+parser.add_argument(
     "--fold",
     type=int,
     default=-1,
