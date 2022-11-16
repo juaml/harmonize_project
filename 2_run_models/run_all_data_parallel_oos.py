@@ -61,6 +61,15 @@ parser.add_argument(
     ),
 )
 
+parser.add_argument(
+    "--TIV_percentage",
+    type=int,
+    default=-1,
+    help=(
+        "Percentage of participants for each gender to filter by extreme TIV. "
+        "If -1 (default), use all subjects."
+    ),
+)
 
 parser.add_argument(
     "--harmonize_mode", type=str, default="JUHA", help="Harmonization Mode"
