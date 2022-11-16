@@ -164,7 +164,6 @@ def postprocess_data(
 
     # Set y
     if problem_type == "binary_classification":
-        
         if cutoff_age < 0:
             logger.info("Converting 'gender' to binary classification")
             female = Y_df["gender"]
@@ -173,14 +172,14 @@ def postprocess_data(
             y = female
         else:
             logger.info("Using binarized age as target")
-            
+            or_age = np.round(Y_df["age"])
             Y_df.loc[Y_df["age"] < cutoff_age, "age"] = 0
             Y_df.loc[Y_df["age"] >= cutoff_age, "age"] = 1
-            age = Y_df["age"]
+            age = np.round(Y_df["age"])
             y = age.to_numpy()
             # filter under 18 participants
             logger.info("Filter under 18 participants")
-            idx_age = y > 18
+            idx_age = or_age > 18
             y = y[idx_age]
             X = X[idx_age]
             sites = sites[idx_age]
