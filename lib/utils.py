@@ -11,7 +11,10 @@ from sklearn.metrics import (
     accuracy_score,
     r2_score,
     mean_absolute_error,
+    f1_score,
+    roc_auc_score,
 )
+
 
 def get_site_index(sites, sites_use):
     idx = np.zeros(len(sites))
@@ -113,20 +116,21 @@ def check_params(params):
     if not params.pred_model in valid_models[params.problem_type]:
         ValueError("Invalid predict method")
 
-    valid_harmonize_mode = ["none", "target","cheat", "notarget", "pretend", 
-                            "pretend_nosite", "predict", "predict_pretend", 
+    valid_harmonize_mode = ["none", "target", "cheat", "notarget", "pretend",
+                            "pretend_nosite", "predict", "predict_pretend",
                             "predict_pretend_nosite"]
 
     if not params.harmonize_mode in valid_harmonize_mode:
         ValueError("Invalid harmonization method")
 
-    return 
+    return
 
-def remove_extreme_TIV(X,Y,TIV_percentage):
+
+def remove_extreme_TIV(X, Y, TIV_percentage):
 
     # Get each gender
-    male = Y[Y["gender"]=="M"]
-    female = Y[Y["gender"]=="F"]
+    male = Y[Y["gender"] == "M"]
+    female = Y[Y["gender"] == "F"]
 
     # Select males
     num_to_delete = male.shape[0] - np.round(male.shape[0] * TIV_percentage / 100).astype(int)
@@ -135,24 +139,24 @@ def remove_extreme_TIV(X,Y,TIV_percentage):
 
     sort_index = np.argsort(gender_TIV.to_numpy())
 
-    TIV_to_remove = male.iloc[sort_index[num_to_delete],4]
+    TIV_to_remove = male.iloc[sort_index[num_to_delete], 4]
 
-    mask = np.where(gender_TIV>TIV_to_remove)
+    mask = np.where(gender_TIV > TIV_to_remove)
 
     male.reset_index(inplace=True)
 
     males_to_keep = male.drop(mask[0])
 
     # select females
-    num_to_delete =  np.round(female.shape[0] * TIV_percentage / 100).astype(int)
+    num_to_delete = np.round(female.shape[0] * TIV_percentage / 100).astype(int)
 
     gender_TIV = female["TIV"]
 
     sort_index = np.argsort(gender_TIV.to_numpy())
 
-    TIV_to_remove = female.iloc[sort_index[num_to_delete],4]
+    TIV_to_remove = female.iloc[sort_index[num_to_delete], 4]
 
-    mask = np.where(gender_TIV<TIV_to_remove)
+    mask = np.where(gender_TIV < TIV_to_remove)
 
     female.reset_index(inplace=True)
     females_to_keep = female.drop(mask[0])
@@ -166,13 +170,14 @@ def remove_extreme_TIV(X,Y,TIV_percentage):
 
     return X_final, Y_final
 
-def table_generation(data, stats=["Age_bias","R2","MAE"]):
+
+def table_generation(data, stats=["Age_bias", "R2", "MAE"]):
 
     harm_modes = np.unique(data["harmonize_mode"])
-    table = pd.DataFrame(columns=harm_modes,index=stats)
+    table = pd.DataFrame(columns=harm_modes, index=stats)
 
     for mode in harm_modes:
-        resut_mode = data[data["harmonize_mode"]==mode]
+        resut_mode = data[data["harmonize_mode"] == mode]
 
         predicted_age = resut_mode["y_pred"]
         true_age = resut_mode["y_true"]
@@ -180,53 +185,88 @@ def table_generation(data, stats=["Age_bias","R2","MAE"]):
         final_stat = []
         for stat in stats:
             if stat == "Age_bias":
-                age_bias = np.corrcoef(true_age, predicted_age-true_age)[0,1]
-                final_stat = np.append(final_stat,age_bias)
+                age_bias = np.corrcoef(true_age, predicted_age-true_age)[0, 1]
+                final_stat = np.append(final_stat, age_bias)
             elif stat == "R2":
-                r2_data = r2_score(true_age,predicted_age)
-                final_stat = np.append(final_stat,r2_data)
+                r2_data = r2_score(true_age, predicted_age)
+                final_stat = np.append(final_stat, r2_data)
             elif stat == "MAE":
-                error_data = mean_absolute_error(true_age,np.round(predicted_age))
-                final_stat = np.append(final_stat,error_data)
-
+                error_data = mean_absolute_error(true_age, np.round(predicted_age))
+                final_stat = np.append(final_stat, error_data)
+            elif stat == "ACC":
+                error_data = accuracy_score(true_age, np.round(predicted_age))
+                final_stat = np.append(final_stat, error_data)
 
         table[mode] = final_stat
 
     return table.T
 
 
-
-def plot_barplot(data,exlude_notarget = True, absolute_error = True):
-    harm_modes = np.unique(data["harmonize_mode"]).tolist()   
+def plot_barplot(data, exlude_notarget=True, absolute_error=True):
+    harm_modes = np.unique(data["harmonize_mode"]).tolist()
     if exlude_notarget:
         harm_modes.remove("notarget")
-  
+
     final_stat = []
     for mode in harm_modes:
-        resut_mode = data[data["harmonize_mode"]==mode]
+        resut_mode = data[data["harmonize_mode"] == mode]
         predicted_age = resut_mode["y_pred"]
         true_age = resut_mode["y_true"]
-        error_data = mean_absolute_error(true_age,np.round(predicted_age))
-        final_stat = np.append(final_stat,error_data)
+        error_data = mean_absolute_error(true_age, np.round(predicted_age))
+        final_stat = np.append(final_stat, error_data)
 
-    to_sort= [harm_modes,final_stat]
-    df = pd.DataFrame(to_sort,index=["method","value"])
-    df = df.sort_values(by="value",axis=1)
+    to_sort = [harm_modes, final_stat]
+    df = pd.DataFrame(to_sort, index=["method", "value"])
+    df = df.sort_values(by="value", axis=1)
     df = df.T
     sort_mode = df["method"]
 
     if absolute_error:
         data["y_diff"] = np.abs(data["y_true"] - np.round(data["y_pred"]))
-    else: 
+    else:
         data["y_diff"] = data["y_true"] - np.round(data["y_pred"])
 
-    plt.figure(figsize=[30,15])
-    sbn.boxenplot(data, y = "y_diff", x = "harmonize_mode", order = sort_mode)
+    plt.figure(figsize=[30, 15])
+    sbn.boxenplot(data, y="y_diff", x="harmonize_mode", order=sort_mode)
 
     return
 
-def plot_grup_barplot(data, exlude_notarget = True, absolute_error = True):
-    harm_modes = np.unique(data["harmonize_mode"]).tolist()   
+
+def plot_barplot_classification(data, exlude_notarget=True):
+    harm_modes = np.unique(data["harmonize_mode"]).tolist()
+    if exlude_notarget:
+        harm_modes.remove("notarget")
+
+    data["acc"] = data["y_pred"]*0
+    final_stat = []
+    for mode in harm_modes:
+        resut_mode = data[data["harmonize_mode"] == mode]
+        predicted_age = resut_mode["y_pred"]
+        true_age = resut_mode["y_true"]
+        error_data = accuracy_score(true_age, np.round(predicted_age))
+        data.loc[data["harmonize_mode"] == mode, "acc"] = error_data
+        final_stat = np.append(final_stat, error_data)
+
+    to_sort = [harm_modes, final_stat]
+    df = pd.DataFrame(to_sort, index=["method", "value"])
+    df = df.sort_values(by="value", axis=1)
+    df = df.T
+    sort_mode = df["method"]
+
+    predicted_age = resut_mode["y_pred"]
+    true_age = resut_mode["y_true"]
+
+    plt.figure(figsize=[30, 15])
+    sbn.barplot(data, y="acc", x="harmonize_mode", order=sort_mode)
+
+    return
+
+
+def plot_grup_barplot(data, exlude_notarget=True, absolute_error=True,
+                      harm_modes=None, legends=None):
+
+    if harm_modes is None:
+        harm_modes = np.unique(data["harmonize_mode"]).tolist()
 
     if exlude_notarget:
         # Check the experiment have no target
@@ -235,15 +275,15 @@ def plot_grup_barplot(data, exlude_notarget = True, absolute_error = True):
 
     final_stat = []
     for mode in harm_modes:
-        resut_mode = data[data["harmonize_mode"]==mode]
+        resut_mode = data[data["harmonize_mode"] == mode]
         predicted_age = resut_mode["y_pred"]
         true_age = resut_mode["y_true"]
-        error_data = mean_absolute_error(true_age,np.round(predicted_age))
-        final_stat = np.append(final_stat,error_data)
+        error_data = mean_absolute_error(true_age, np.round(predicted_age))
+        final_stat = np.append(final_stat, error_data)
 
-    to_sort= [harm_modes,final_stat]
-    df = pd.DataFrame(to_sort,index=["method","value"])
-    df = df.sort_values(by="value",axis=1)
+    to_sort = [harm_modes, final_stat]
+    df = pd.DataFrame(to_sort, index=["method", "value"])
+    df = df.sort_values(by="value", axis=1)
     df = df.T
     sort_mode = df["method"]
 
@@ -252,64 +292,81 @@ def plot_grup_barplot(data, exlude_notarget = True, absolute_error = True):
     else:
         data["y_diff"] = data["y_true"]-data["y_pred"]
 
-
     g = sbn.catplot(
-        data=data, kind= "boxen",
-        x="site", y= "y_diff", hue="harmonize_mode", 
-        height=6, hue_order=sort_mode
+        data=data, kind="boxen",
+        x="site", y="y_diff", hue="harmonize_mode",
+        height=6, hue_order=sort_mode, legend=legends
     )
     g.set_axis_labels("", "Prediction difference")
-    g.legend.set_title("CV experiment")
-    plt.grid(alpha=0.5,axis="y", c="black")
+    g.legend.set_title("Harmonization Schemes")
+    g.legend[legends]
+    plt.grid(alpha=0.5, axis="y", c="black")
 
     return
 
 
-def extract_experiment_data(exp_dir, exp_name):
+def extract_experiment_data(exp_dir, exp_name, train_acc=False):
     for experiment in exp_name:
         in_path = Path(exp_dir) / experiment
-
         all_dfs = []
-        for t_fname in in_path.glob('*out.csv'):
+        if train_acc:
+            files = '*train.csv'
+
+        else:
+            files = '*out.csv'
+        for t_fname in in_path.glob(files):
             all_dfs.append(pd.read_csv(t_fname, sep=';'))
 
         results_df = pd.concat(all_dfs)
     return results_df
 
 
-def extract_experiment_data_oos(exp_dir, exp_name):
+def extract_experiment_data_oos(exp_dir, exp_name, train_acc=False):
     for experiment in exp_name:
         in_path = Path(exp_dir) / experiment
-
         all_dfs = []
-        for t_fname in in_path.glob('*out.csv'):
+        if train_acc:
+            files = '*train.csv'
+
+        else:
+            files = '*out.csv'
+
+        for t_fname in in_path.glob(files):
             df = pd.read_csv(t_fname, sep=';')
 
-            all_dfs.append(df)  
+            all_dfs.append(df)
 
         results_df = pd.concat(all_dfs)
-    
+
     return results_df
 
 
-def classification_table(data, stats=["acc"]):
+def classification_table(data, harm_modes=None, stats=["acc"]):
 
-    harm_modes = np.unique(data["harmonize_mode"])
-    table = pd.DataFrame(columns=harm_modes,index=stats)
+    if harm_modes is None:
+        harm_modes = np.unique(data["harmonize_mode"])
+
+    table = pd.DataFrame(columns=harm_modes, index=stats)
 
     for mode in harm_modes:
-        resut_mode = data[data["harmonize_mode"]==mode]
+        resut_mode = data[data["harmonize_mode"] == mode]
 
-        predicted_gender = resut_mode["y_pred"]
-        true_gender = resut_mode["y_true"]
+        predicted_y = resut_mode["y_pred"]
+        true_y = resut_mode["y_true"]
 
         final_stat = []
         for stat in stats:
             if stat == "acc":
-                gender_acc = accuracy_score(true_gender,predicted_gender)
-                final_stat = np.append(final_stat,gender_acc)
+                acc = accuracy_score(true_y, predicted_y)
+                final_stat = np.append(final_stat, acc)
 
-
+            if stat == "F1_score":
+                F1 = f1_score(true_y, predicted_y)
+                final_stat = np.append(final_stat, F1)
+            
+            if stat == "auc":
+                auc = roc_auc_score(true_y, predicted_y)
+                final_stat = np.append(final_stat, auc)
 
         table[mode] = final_stat
 

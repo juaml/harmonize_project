@@ -167,31 +167,59 @@ def train_harmonizer(
     return out
 
 
-def eval_harmonizer(harm, X, y, sites, covars=None):
-    logger.info(f"Evaluation harmonizer")
-    if harm["harm_type"] == "none":
-        out = harm["pred_model"].predict(X)
-    elif harm["harm_type"] == "target":
-        assert y is not None
-        X = harm["harm_model"].transform(X, y, sites, covars)
-        out = harm["pred_model"].predict(X)
-    elif harm["harm_type"] == "notarget":
-        X = harm["harm_model"].transform(X, y, sites, covars)
-        out = harm["pred_model"].predict(X)
-    elif harm["harm_type"] == "predict":
-        X = harm["harm_model"].transform(X)
-        out = harm["pred_model"].predict(X)
-    elif harm["harm_type"] in ["pretend", "pretend_nosite"]:
-        out = harm["pred_model"].predict(X, sites, covars)
-    elif harm["harm_type"] in ["predict_pretend", "predict_pretend_nosite"]:
-        X = harm["harm_model"].transform(X)
-        out = harm["pred_model"].predict(X, sites, covars)
-    else:
-        raise ValueError(f"Unknown harm_type: {harm['harm_type']}")
+def eval_harmonizer(harm, X, y, sites, covars=None, return_proba=False):
+    logger.info("Evaluation harmonizer")
 
     if harm["problem_type"] == "binary_classification":
-        acc = accuracy_score(y, out)
+
+        if harm["harm_type"] == "none":
+            out = harm["pred_model"].predict_proba(X)
+        elif harm["harm_type"] == "target":
+            assert y is not None
+            X = harm["harm_model"].transform(X, y, sites, covars)
+            out = harm["pred_model"].predict_proba(X)
+        elif harm["harm_type"] == "notarget":
+            X = harm["harm_model"].transform(X, y, sites, covars)
+            out = harm["pred_model"].predict_proba(X)
+        elif harm["harm_type"] == "predict":
+            X = harm["harm_model"].transform(X)
+            out = harm["pred_model"].predict_proba(X)
+        elif harm["harm_type"] in ["pretend", "pretend_nosite"]:
+            out = harm["pred_model"].predict_proba(X, sites, covars)
+        elif harm["harm_type"] in ["predict_pretend", "predict_pretend_nosite"]:
+            X = harm["harm_model"].transform(X)
+            out = harm["pred_model"].predict_proba(X, sites, covars)
+        else:
+            raise ValueError(f"Unknown harm_type: {harm['harm_type']}")
+
+        if not return_proba:
+            out = np.round(out)
+
+        score = accuracy_score(y, np.round(out))
     else:
-        acc = r2_score(y, out)
-    logger.info(f"Evaluation done: {acc}")
-    return out, acc
+        if harm["harm_type"] == "none":
+            out = harm["pred_model"].predict(X)
+        elif harm["harm_type"] == "target":
+            assert y is not None
+            X = harm["harm_model"].transform(X, y, sites, covars)
+            out = harm["pred_model"].predict(X)
+        elif harm["harm_type"] == "notarget":
+            X = harm["harm_model"].transform(X, y, sites, covars)
+            out = harm["pred_model"].predict(X)
+        elif harm["harm_type"] == "predict":
+            X = harm["harm_model"].transform(X)
+            out = harm["pred_model"].predict(X)
+        elif harm["harm_type"] in ["pretend", "pretend_nosite"]:
+            out = harm["pred_model"].predict_proba(X, sites, covars)
+        elif harm["harm_type"] in ["predict_pretend", "predict_pretend_nosite"]:
+            X = harm["harm_model"].transform(X)
+            out = harm["pred_model"].predict(X, sites, covars)
+        else:
+            raise ValueError(f"Unknown harm_type: {harm['harm_type']}")
+
+        score = r2_score(y, out)
+
+        if return_proba:
+            print("Not possible returning probability in regression problems")
+    logger.info(f"Evaluation done: {score}")
+    return out, score
