@@ -9,8 +9,8 @@ from sklearn.gaussian_process.kernels import (
 from sklearn.gaussian_process import GaussianProcessRegressor as GPR
 from sklearn.linear_model import RidgeCV
 from sklearn.model_selection import GridSearchCV
-from sklearn.svm import SVC, SVR
-from skrvm import RVR, RVC
+from sklearn.svm import SVC, SVR, LinearSVR
+from skrvm import RVR
 from sklearn_rvm import EMRVC
 from .utils import logger
 
@@ -70,7 +70,10 @@ def get_models(params, problem_type):
             pred_model = SVC(probability=True, kernel="linear")
         elif pred_model == "rvc":
             # pred_model = RVC(kernel="poly", degree=1)
-            pred_model = EMRVC(kernel="poly", degree=1, gamma='scale', bias_used=True)   
+            pred_model = EMRVC(kernel="poly",
+                               degree=1,
+                               gamma='scale',
+                               bias_used=True)
 
     else:
         # ['gsgpr', 'gssvm', 'ridgecv', 'rvr'],
@@ -98,8 +101,13 @@ def get_models(params, problem_type):
             pred_model = RidgeCV()
         elif pred_model == "rvr":
             pred_model = RVR(kernel="poly", degree=1)
+        elif pred_model == "LinearSVR":
+            pred_model = LinearSVR()
         else:
             raise ValueError("Regression model not supported")
+
+        if stack_model == "LinearSVR":
+            stack_model = LinearSVR()
 
     if pca:
         pca80 = PCA(n_components=0.8, svd_solver="full")
