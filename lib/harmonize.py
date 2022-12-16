@@ -192,6 +192,7 @@ def eval_harmonizer(harm, X, y, sites, covars=None, return_proba=False):
         else:
             raise ValueError(f"Unknown harm_type: {harm['harm_type']}")
 
+        out = out[:, 1]
         if not return_proba:
             out = np.round(out)
 
@@ -221,5 +222,6 @@ def eval_harmonizer(harm, X, y, sites, covars=None, return_proba=False):
 
         if return_proba:
             print("Not possible returning probability in regression problems")
+
     logger.info(f"Evaluation done: {score}")
     return out, score

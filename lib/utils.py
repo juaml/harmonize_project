@@ -357,7 +357,7 @@ def classification_table(data, harm_modes=None, stats=["acc"]):
         final_stat = []
         for stat in stats:
             if stat == "acc":
-                acc = accuracy_score(true_y, predicted_y)
+                acc = accuracy_score(true_y, np.round(predicted_y))
                 final_stat = np.append(final_stat, acc)
 
             if stat == "F1_score":

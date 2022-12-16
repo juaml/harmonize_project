@@ -205,3 +205,51 @@ results_df = extract_experiment_data(exp_dir, experiments_to_check, False)
 
 classification_table(results_df, stats=["auc"])
 # %%
+
+exp_dir = "/home/nnieto/Nico/Harmonization/results_classification"
+experiments_to_check = {
+        'test_ADNI_WM_classification_proba'
+}
+
+results_df = extract_experiment_data(exp_dir, experiments_to_check, False)
+
+classification_table(results_df, stats=["auc"])
+# %%
+exp_dir = "/home/nnieto/Nico/Harmonization/results_classification"
+experiments_to_check = {
+        'test_ADNI_FA_classification_proba'
+}
+
+results_df = extract_experiment_data(exp_dir, experiments_to_check, False)
+
+classification_table(results_df, stats=["auc"])
+# %%
+exp_dir = "/home/nnieto/Nico/Harmonization/results_classification"
+experiments_to_check = {
+        'test_ADNI_FA_classification_proba_only_linear'
+}
+
+results_df = extract_experiment_data(exp_dir, experiments_to_check, False)
+
+classification_table(results_df, stats=["auc"])
+# %%
+
+exp_dir = "/home/nnieto/Nico/Harmonization/results_classification"
+experiments_to_check = {
+        'test_ADNI_WM_classification_proba_only_linear'
+}
+
+results_df = extract_experiment_data(exp_dir, experiments_to_check, False)
+
+classification_table(results_df, stats=["auc"])
+# %%
+exp_dir = "/home/nnieto/Nico/Harmonization/results_classification"
+experiments_to_check = {
+        'test_ADNI_WM_classification_new_proba'
+}
+
+results_df = extract_experiment_data(exp_dir, experiments_to_check, False)
+
+classification_table(results_df, stats=["auc"])
+
+# %%
