@@ -5,16 +5,16 @@ cwd = os.getcwd()
 log_dir = Path(cwd) / "logs"
 log_dir.mkdir(exist_ok=True)
 
-env = "juharmonize"
+env = "juharmonize_R8"
 
-data_dir = "/data/project/harmonize/data/CAT/s4_r4/"
-save_dir = Path("/data/project/harmonize/results/")
+data_dir = "/data/project/harmonize/data/ADNI/ADNI_WM/"
+save_dir = Path("/data/project/harmonize/results_ADNI_proba/")
 
 experiments = {
-    "test_all_regression": {
-        "sites_use": "eNKI ID1000 CamCAN 1000Gehirne",
-        "pred_model": "rvr",
-        "problem_type": "regression",
+    "test_ADNI_WM_classification_proba": {
+        "sites_use": "Achieva Achieva_dStream DISCOVERY_MR750 DISCOVERY_MR750w Ingenia Intera Prisma Prisma_fit Signa_HDxt Skyra TrioTim Verio",
+        "pred_model": "gssvm",
+        "problem_type": "binary_classification",
         "n_high_var_feats": 29854,
         "scaler": None,
         "use_disk": None,
