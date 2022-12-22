@@ -221,6 +221,9 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
     if params.pred_model == "rvc":
         pred_model.coef1 = 1/(X_train.shape[1]*X_train.var())
 
+    if params.stack_model == "LinearSVR":
+        stack_model.C = np.mean(np.sqrt(np.sum(X_train**2, axis=1)))
+
     harm_model = train_harmonizer(
         harmonize_mode,
         X_train,

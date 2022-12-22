@@ -1,6 +1,7 @@
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, RobustScaler
 from sklearn.decomposition import PCA
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.gaussian_process.kernels import (
     DotProduct,
     WhiteKernel,
@@ -16,7 +17,7 @@ from .utils import logger
 
 _valid_models = {
     "binary_classification": ["gssvm", "rvc", "svm"],
-    "regression": ["gsgpr", "gssvm", "ridgecv", "rvr"],
+    "regression": ["gsgpr", "gssvm", "ridgecv", "rvr", "LinearSVR"],
 }
 
 
@@ -36,13 +37,22 @@ def set_argparse_params(parser):
         "--pred_model", type=str, default="svm", help="Prediction model to use"
     )
     parser.add_argument(
-        "--stack_model", type=str, default="rf", help="Stacked model to use"
+        "--stack_model", type=str, default="logit", help="Stacked model to use"
     )
 
+    parser.add_argument(
+        "--calibration_pred", action="store_true", default=False,
+        help="Calibrate Pred Model"
+    )
+
+    parser.add_argument(
+        "--calibration_stack", action="store_true", default=False,
+        help="Calibrate Stack Model"
+    )
     return parser
 
 
-def get_models(params, problem_type):
+def get_models(params, problem_type, C_stack):
     pred_model = params.pred_model
     stack_model = params.stack_model
     logger.info("Setting up models")
@@ -50,6 +60,8 @@ def get_models(params, problem_type):
     logger.info(f"\tStack model: {stack_model}")
     pca = params.pca
     scaler = params.scaler
+    calibration_pred = params.calibration_pred_cv
+    calibration_stack = params.calibration_stack_cv
     logger.info(f"\tPCA: {pca}")
     logger.info(f"\tScaler: {scaler}")
     logger.info(f"\tUse Disk: {params.use_disk}")
@@ -108,6 +120,12 @@ def get_models(params, problem_type):
 
         if stack_model == "LinearSVR":
             stack_model = LinearSVR()
+
+    if calibration_pred:
+        pred_model = CalibratedClassifierCV(pred_model, cv=3)
+
+    if calibration_stack:
+        stack_model = CalibratedClassifierCV(stack_model, cv=3)
 
     if pca:
         pca80 = PCA(n_components=0.8, svd_solver="full")
