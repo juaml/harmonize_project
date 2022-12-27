@@ -143,13 +143,14 @@ def load_sites_data(data_dir, sites):
 
 
 def postprocess_data(
-    X_df, Y_df, problem_type, unify_sites_names, n_high_var_feats, cutoff_age, idxvar=None 
+    X_df, Y_df, problem_type, unify_sites_names,
+    n_high_var_feats, cutoff_age, idxvar=None
 ):
     # ############## Format data
     # Unify sites names
     sites = Y_df["site"]
 
-    if unify_sites_names == None:
+    if unify_sites_names is None:
         logger.info("No site name unification")
     else:
         sites = unify_sites(sites, unify_sites_names)
@@ -270,7 +271,7 @@ def get_MRI_data(params, problem_type, use_oos=False):
 
     if params.TIV_percentage > 0:
         logger.info(f"Delete the {params.TIV_percentage}% of subjects with more extreme TIV for each gender.")
-        X_df, Y_df = remove_extreme_TIV(X_df,Y_df,params.TIV_percentage)
+        X_df, Y_df = remove_extreme_TIV(X_df, Y_df, params.TIV_percentage)
 
     X, y, sites, idxvar = postprocess_data(
         X_df,
@@ -278,7 +279,7 @@ def get_MRI_data(params, problem_type, use_oos=False):
         problem_type,
         unify_sites_names,
         n_high_var_feats,
-        cutoff_age = cutoff_age,
+        cutoff_age=cutoff_age,
         idxvar=None
     )
 
@@ -331,7 +332,7 @@ def get_MRI_data(params, problem_type, use_oos=False):
             problem_type,
             unify_sites_names,
             n_high_var_feats,
-            cutoff_age = cutoff_age,
+            cutoff_age=cutoff_age,
             idxvar=idxvar,
         )
         covarsoos = None
