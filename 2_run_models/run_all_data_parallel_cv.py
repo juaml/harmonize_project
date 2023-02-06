@@ -206,10 +206,17 @@ if harmonize_mode == "cheat":
     harmonize_mode = "none"
     cheat = True
 
+repetition = 0
+final_results = pd.DataFrame()
+
 for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
-    if fold_to_do >= 0 and i_fold != fold_to_do:
+    kf_fold = i_fold // n_repeats
+    if fold_to_do >= 0 and kf_fold != fold_to_do:
         continue
-    logger.info(f"CV Fold: {i_fold} ...")
+    repetition = repetition+1
+    logger.info(f"CV Fold: {kf_fold} ...")
+    logger.info(f"Repetition: {repetition} ...")
+
     X_train, sites_train, y_train, covars_train, _ = subset_data(
         train_index, X, sites, y, covars
     )
@@ -257,18 +264,14 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
     )
     logger.info("================================")
 
-    # cv_fold = i_fold % n_repeats
-    cv_fold = i_fold % n_splits
-    n_repeat = i_fold // n_splits
-
     # Save TEST results
     out_fname = f"{harmonize_mode}_fold_{i_fold}_of_{n_splits}_out.csv"
     to_save = pd.DataFrame(
         {"y_true": y_test, "y_pred": out_fold, "site": sites_test}
     )
     to_save["harmonize_mode"] = harmonize_mode
-    to_save["fold"] = cv_fold
-    to_save["repeat"] = n_repeat
+    to_save["fold"] = kf_fold
+    to_save["repeat"] = repetition
     out_path = save_dir / out_fname
     logger.info(f"Saving dataframe in {out_path.as_posix()}")
     to_save.to_csv(out_path, sep=";")
@@ -279,8 +282,11 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
         {"y_true": y_train, "y_pred": out_fold_train, "site": sites_train}
     )
     to_save["harmonize_mode"] = harmonize_mode
-    to_save["fold"] = cv_fold
-    to_save["repeat"] = n_repeat
-    out_path = save_dir / out_fname
-    logger.info(f"Saving dataframe in {out_path.as_posix()}")
-    to_save.to_csv(out_path, sep=";")
+    to_save["fold"] = kf_fold
+    to_save["repeat"] = repetition
+    final_results = pd.concat([final_results, to_save])
+
+
+out_path = save_dir / out_fname
+logger.info(f"Saving dataframe in {out_path.as_posix()}")
+final_results.to_csv(out_path, sep=";")

@@ -42,7 +42,7 @@ def set_argparse_params(parser):
     return parser
 
 
-def get_models(params, problem_type, C_stack):
+def get_models(params, problem_type):
     pred_model = params.pred_model
     stack_model = params.stack_model
     logger.info("Setting up models")

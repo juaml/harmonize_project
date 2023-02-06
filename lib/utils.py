@@ -161,7 +161,7 @@ def remove_extreme_TIV(X, Y, TIV_percentage):
     female.reset_index(inplace=True)
     females_to_keep = female.drop(mask[0])
 
-    index_to_keep = pd.concat([males_to_keep["index"],females_to_keep["index"]])
+    index_to_keep = pd.concat([males_to_keep["index"], females_to_keep["index"]])
 
     y_tvi = Y.drop(index_to_keep)
 
@@ -263,7 +263,7 @@ def plot_barplot_classification(data, exlude_notarget=True):
 
 
 def plot_grup_barplot(data, exlude_notarget=True, absolute_error=True,
-                      harm_modes=None, legends=None):
+                      harm_modes=None):
 
     if harm_modes is None:
         harm_modes = np.unique(data["harmonize_mode"]).tolist()
@@ -295,11 +295,11 @@ def plot_grup_barplot(data, exlude_notarget=True, absolute_error=True,
     g = sbn.catplot(
         data=data, kind="boxen",
         x="site", y="y_diff", hue="harmonize_mode",
-        height=6, hue_order=sort_mode, legend=legends
+        height=6, hue_order=sort_mode, legend=harm_modes
     )
     g.set_axis_labels("", "Prediction difference")
-    g.legend.set_title("Harmonization Schemes")
-    g.legend[legends]
+    plt.xlabel("Dataset")
+    plt.title("Harmonization schemes comparison")
     plt.grid(alpha=0.5, axis="y", c="black")
 
     return
@@ -363,7 +363,7 @@ def classification_table(data, harm_modes=None, stats=["acc"]):
             if stat == "F1_score":
                 F1 = f1_score(true_y, predicted_y)
                 final_stat = np.append(final_stat, F1)
-            
+
             if stat == "auc":
                 auc = roc_auc_score(true_y, predicted_y)
                 final_stat = np.append(final_stat, auc)
@@ -371,3 +371,38 @@ def classification_table(data, harm_modes=None, stats=["acc"]):
         table[mode] = final_stat
 
     return table.T
+
+
+def get_fold_acc_auc(results_df):
+    # Compute ACC and AUC for each fold.
+    acc_fold = []
+    data_final = pd.DataFrame(columns=["acc", "auc", "site",
+                                       "Harmonization Schemes"])
+    site_fold = []
+    harm_fold = []
+    auc_fold = []
+    # For each site
+    for site in np.unique(results_df["site"]):
+        results_site = results_df[results_df["site"] == site]
+        # For each fold
+        for fold in np.unique(results_site["fold"]):
+            results_fold = results_site[results_site["fold"] == fold]
+            # For each mehods
+            for harm in np.unique(results_fold["harmonize_mode"]):
+
+                results_harm = results_fold[results_fold["harmonize_mode"] == harm]
+                # Compute ACC
+                acc_fold.append(accuracy_score(results_harm["y_true"],
+                                np.round(results_harm["y_pred"])))
+                # Compute AUC
+                auc_fold.append(roc_auc_score(results_harm["y_true"],
+                                results_harm["y_pred"]))
+                site_fold.append(site)
+                harm_fold.append(harm)
+
+    # Create final Dataframe
+    data_final["acc"] = np.array(acc_fold)
+    data_final["auc"] = np.array(acc_fold)
+    data_final["site"] = site_fold
+    data_final["Harmonization Schemes"] = harm_fold
+    return data_final

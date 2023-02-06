@@ -167,7 +167,7 @@ def train_harmonizer(
     return out
 
 
-def eval_harmonizer(harm, X, y, sites, covars=None, return_proba=False):
+def eval_harmonizer(harm, X, y, sites, covars=None, return_proba=True):
     logger.info("Evaluation harmonizer")
 
     if harm["problem_type"] == "binary_classification":
