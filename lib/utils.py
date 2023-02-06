@@ -141,7 +141,7 @@ def remove_extreme_TIV(X, Y, TIV_percentage):
 
     TIV_to_remove = male.iloc[sort_index[num_to_delete], 4]
 
-    mask = np.where(gender_TIV > TIV_to_remove)
+    mask = np.where(gender_TIV > TIV_to_remove.to_numpy())
 
     male.reset_index(inplace=True)
 
@@ -156,7 +156,7 @@ def remove_extreme_TIV(X, Y, TIV_percentage):
 
     TIV_to_remove = female.iloc[sort_index[num_to_delete], 4]
 
-    mask = np.where(gender_TIV < TIV_to_remove)
+    mask = np.where(gender_TIV < TIV_to_remove.to_numpy())
 
     female.reset_index(inplace=True)
     females_to_keep = female.drop(mask[0])
