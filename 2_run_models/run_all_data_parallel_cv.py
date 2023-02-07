@@ -290,12 +290,12 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
         harmonize_mode = "none"
 
 # Saving results
-out_fname = f"{harmonize_mode}_fold_{kf_fold}_of_{n_splits}_out.csv"
+out_fname = f"{harmonize_mode}_fold_{fold_to_do}_of_{n_splits}_out.csv"
 out_path = save_dir / out_fname
 logger.info(f"Saving Test dataframe in {out_path.as_posix()}")
 final_results_test.to_csv(out_path, sep=";")
 
-out_fname = f"{harmonize_mode}_fold_{kf_fold}_of_{n_splits}_train.csv"
+out_fname = f"{harmonize_mode}_fold_{fold_to_do}_of_{n_splits}_train.csv"
 out_path = save_dir / out_fname
 logger.info(f"Saving Train dataframe in {out_path.as_posix()}")
 final_results_train.to_csv(out_path, sep=";")
