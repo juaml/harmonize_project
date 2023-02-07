@@ -207,7 +207,8 @@ if harmonize_mode == "cheat":
     cheat = True
 
 repetition = 0
-final_results = pd.DataFrame()
+final_results_train = pd.DataFrame()
+final_results_test = pd.DataFrame()
 
 for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
     kf_fold = i_fold // n_repeats
@@ -259,34 +260,42 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
 
     logger.info("================================")
     logger.info(
-        f"\tFOLD {i_fold} - TEST SCORE: {acc_fold} "
+        f"\tFOLD {kf_fold} - TEST SCORE: {acc_fold} "
         f"- TRAIN SCORE: {acc_fold_train}"
     )
     logger.info("================================")
 
     # Save TEST results
-    out_fname = f"{harmonize_mode}_fold_{i_fold}_of_{n_splits}_out.csv"
     to_save = pd.DataFrame(
         {"y_true": y_test, "y_pred": out_fold, "site": sites_test}
     )
     to_save["harmonize_mode"] = harmonize_mode
     to_save["fold"] = kf_fold
     to_save["repeat"] = repetition
-    out_path = save_dir / out_fname
-    logger.info(f"Saving dataframe in {out_path.as_posix()}")
-    to_save.to_csv(out_path, sep=";")
+    # Concatenate the repeat result
+    final_results_test = pd.concat([final_results_test, to_save])
 
     # Save TRAIN results
-    out_fname = f"{harmonize_mode}_fold_{i_fold}_of_{n_splits}_train.csv"
     to_save = pd.DataFrame(
         {"y_true": y_train, "y_pred": out_fold_train, "site": sites_train}
     )
     to_save["harmonize_mode"] = harmonize_mode
     to_save["fold"] = kf_fold
     to_save["repeat"] = repetition
-    final_results = pd.concat([final_results, to_save])
+    # Concatenate the repeat result
+    final_results_train = pd.concat([final_results_train, to_save])
 
+    # Put again the cheat mode as none for the next repetition
+    if cheat is True:
+        harmonize_mode = "none"
 
+# Saving results
+out_fname = f"{harmonize_mode}_fold_{kf_fold}_of_{n_splits}_out.csv"
 out_path = save_dir / out_fname
-logger.info(f"Saving dataframe in {out_path.as_posix()}")
-final_results.to_csv(out_path, sep=";")
+logger.info(f"Saving Test dataframe in {out_path.as_posix()}")
+final_results_test.to_csv(out_path, sep=";")
+
+out_fname = f"{harmonize_mode}_fold_{kf_fold}_of_{n_splits}_train.csv"
+out_path = save_dir / out_fname
+logger.info(f"Saving Train dataframe in {out_path.as_posix()}")
+final_results_train.to_csv(out_path, sep=";")
