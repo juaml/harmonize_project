@@ -373,7 +373,7 @@ def classification_table(data, harm_modes=None, stats=["acc"]):
     return table.T
 
 
-def get_fold_acc_auc(results_df):
+def get_fold_acc_auc(results_df, repeat=False):
     # Compute ACC and AUC for each fold.
     acc_fold = []
     data_final = pd.DataFrame(columns=["acc", "auc", "site",
@@ -382,6 +382,9 @@ def get_fold_acc_auc(results_df):
     harm_fold = []
     auc_fold = []
     # For each site
+    if repeat:
+        results_df["fold"] = results_df["fold"] * 10 + results_df["repeat"]
+
     for site in np.unique(results_df["site"]):
         results_site = results_df[results_df["site"] == site]
         # For each fold

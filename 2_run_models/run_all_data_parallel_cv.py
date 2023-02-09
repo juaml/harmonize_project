@@ -289,6 +289,9 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
     if cheat is True:
         harmonize_mode = "none"
 
+if cheat is True:
+    harmonize_mode = "cheat"
+
 # Saving results
 out_fname = f"{harmonize_mode}_fold_{fold_to_do}_of_{n_splits}_out.csv"
 out_path = save_dir / out_fname
