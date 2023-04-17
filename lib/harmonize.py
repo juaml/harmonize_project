@@ -116,7 +116,8 @@ def train_harmonizer(
         logger.info("Fit done")
     elif harm_type == "predict":
         rf_model = RandomForestRegressor(n_jobs=n_jobs)
-        out["harm_model"] = JuHarmonizePredictor(use_disk=use_disk, model=rf_model)
+        out["harm_model"] = JuHarmonizePredictor(use_disk=use_disk,
+                                                 model=rf_model)
         logger.info("JuHarmonizePredictor fit_transform")
         X_harm = out["harm_model"].fit_transform(X, y, sites, covars)
         logger.info("Predictive model fit")
@@ -186,7 +187,8 @@ def eval_harmonizer(harm, X, y, sites, covars=None, return_proba=True):
             out = harm["pred_model"].predict_proba(X)
         elif harm["harm_type"] in ["pretend", "pretend_nosite"]:
             out = harm["pred_model"].predict_proba(X, sites, covars)
-        elif harm["harm_type"] in ["predict_pretend", "predict_pretend_nosite"]:
+        elif harm["harm_type"] in ["predict_pretend",
+                                   "predict_pretend_nosite"]:
             X = harm["harm_model"].transform(X)
             out = harm["pred_model"].predict_proba(X, sites, covars)
         else:
@@ -212,7 +214,8 @@ def eval_harmonizer(harm, X, y, sites, covars=None, return_proba=True):
             out = harm["pred_model"].predict(X)
         elif harm["harm_type"] in ["pretend", "pretend_nosite"]:
             out = harm["pred_model"].predict(X, sites, covars)
-        elif harm["harm_type"] in ["predict_pretend", "predict_pretend_nosite"]:
+        elif harm["harm_type"] in ["predict_pretend",
+                                   "predict_pretend_nosite"]:
             X = harm["harm_model"].transform(X)
             out = harm["pred_model"].predict(X, sites, covars)
         else:

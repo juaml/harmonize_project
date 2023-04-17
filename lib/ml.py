@@ -108,6 +108,8 @@ def get_models(params, problem_type):
 
         if stack_model == "LinearSVR":
             stack_model = LinearSVR()
+        if stack_model == "rvr":
+            stack_model = RVR(kernel="poly", degree=1)
 
     if pca:
         pca80 = PCA(n_components=0.8, svd_solver="full")

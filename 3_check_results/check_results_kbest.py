@@ -1,10 +1,8 @@
+# %%
 from pathlib import Path
-import numpy as np
 import pandas as pd
 
 from sklearn.metrics import (
-    accuracy_score,
-    r2_score,
     mean_absolute_error
 )
 
@@ -35,9 +33,6 @@ for k in select_ks:
     summary_df = results_df.groupby(
         ["kind", "harmonize_mode", "fold", "repeat"]).apply(
             lambda x: scoring(x.y_true, x.y_pred))
-    # print(f"Experiment: {experiment}")
-    # print(summary_df)
-    # print("\n")
     summary_df.name = "mae"
     summary_df = summary_df.reset_index()
     summary_df["k"] = k

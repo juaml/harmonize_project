@@ -111,6 +111,15 @@ def set_argparse_params(parser, use_oos=False):
     parser.add_argument(
         "--random_sites", type=bool, default=False, help="If randomized sites"
     )
+
+    parser.add_argument(
+        "--min_num_images",
+        type=int,
+        default=-1,
+        help="Positive Value: Filter all site so keep to the number of images."
+             "Cero: Filter all sites to match the site with less images."
+             "Negative value: Do Nothing"
+    )
     return parser
 
 
@@ -144,7 +153,8 @@ def load_sites_data(data_dir, sites):
 
 def postprocess_data(
     X_df, Y_df, problem_type, unify_sites_names,
-    n_high_var_feats, cutoff_age, idxvar=None
+    n_high_var_feats, cutoff_age, min_num_images,
+    idxvar=None
 ):
     # ############## Format data
     # Unify sites names
@@ -209,7 +219,7 @@ def postprocess_data(
 
     np.nan_to_num(X, copy=False, nan=0, posinf=0, neginf=0)
 
-    # Check por inf and NaN
+    # Check for inf and NaN
     assert not np.any(np.isnan(X))
     assert not np.any(np.isinf(X))
 
@@ -231,6 +241,48 @@ def postprocess_data(
             id_keep = np.min([n_high_var_feats, idxvar.shape[0]])
             idxvar = idxvar[range(0, id_keep)]
 
+    # Filter number of
+    if min_num_images >= 0:
+        # Filter all sites to the passed number
+        filtered_data = {}
+        # Iterate over unique site labels
+        unique_sites = np.unique(sites)
+
+        if min_num_images == 0:
+            # If 0 is pass, put all the data
+            unique_sites, site_counts = np.unique(sites, return_counts=True)
+            min_num_images = np.min(site_counts)
+
+        for site_label in unique_sites:
+            # Get indices of samples for the current site
+            site_indices = np.where(sites == site_label)[0]
+            # Shuffle the indices
+            np.random.shuffle(site_indices)
+            # Select the first min_num_images indices
+            selected_indices = site_indices[:min_num_images]
+            # Filter X, y, and site using the selected indices
+            filtered_data[site_label] = {
+                'X': X[selected_indices],
+                'y': y[selected_indices],
+                'site': sites[selected_indices]
+            }
+
+        # Update X, y, and site with the filtered data
+        X = np.vstack([filtered_data[site_label]['X']
+                       for site_label in unique_sites])
+        y = np.hstack([filtered_data[site_label]['y']
+                       for site_label in unique_sites])
+        sites = np.hstack([filtered_data[site_label]['site']
+                           for site_label in unique_sites])
+        unique_sites, site_counts = np.unique(sites, return_counts=True)
+
+        logger.info("Number of images in each site" + str(site_counts))
+
+    elif min_num_images < 0:
+        # Do not change the number of images
+        logger.info("No filter in the number of images")
+
+    # Keep the features with large variance
     X = X[:, idxvar]
 
     return X, y, sites, idxvar
@@ -244,6 +296,7 @@ def get_MRI_data(params, problem_type, use_oos=False):
     n_high_var_feats = params.n_high_var_feats
     sites_use = params.sites_use
     cutoff_age = params.cutoff_age
+    min_num_images = params.min_num_images
     if sites_use == "all":
         sites_use = [
             "1000Gehirne",
@@ -270,7 +323,8 @@ def get_MRI_data(params, problem_type, use_oos=False):
     X_df, Y_df = load_sites_data(data_dir, sites_use)
 
     if params.TIV_percentage > 0:
-        logger.info(f"Delete the {params.TIV_percentage}% of subjects with more extreme TIV for each gender.")
+        logger.info(f"Delete the {params.TIV_percentage}% of subjects with"
+                    "more extreme TIV for each gender.")
         X_df, Y_df = remove_extreme_TIV(X_df, Y_df, params.TIV_percentage)
 
     X, y, sites, idxvar = postprocess_data(
@@ -280,6 +334,7 @@ def get_MRI_data(params, problem_type, use_oos=False):
         unify_sites_names,
         n_high_var_feats,
         cutoff_age=cutoff_age,
+        min_num_images=min_num_images,
         idxvar=None
     )
 

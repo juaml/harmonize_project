@@ -13,6 +13,8 @@ from sklearn.metrics import (
     mean_absolute_error,
     f1_score,
     roc_auc_score,
+    balanced_accuracy_score,
+    average_precision_score,
 )
 
 
@@ -92,21 +94,6 @@ def show_hist(y, main='', bins=5):
     fig.show()
 
 
-# def get_pred_acc(model, X, y, problem_type, sites=None, covars=None):
-#     if problem_type == "binary_classification":
-#         if sites is not None:
-#             pred = model.predict_proba(X, sites, covars)[:, 1]
-#         else:
-#             pred = model.predict_proba(X)[:, 1]
-#         acc = average_precision_score(y, pred)
-#     else:
-#         if sites is not None:
-#             pred = model.predict(X, sites, covars)
-#         else:
-#             pred = model.predict(X)
-#         acc = mean_absolute_error(y, pred)
-#     return pred, acc
-
 def check_params(params):
     valid_models = {
         "binary_classification": ["gssvm", "rvc", "svm"],
@@ -133,35 +120,38 @@ def remove_extreme_TIV(X, Y, TIV_percentage):
     female = Y[Y["gender"] == "F"]
 
     # Select males
-    num_to_delete = male.shape[0] - np.round(male.shape[0] * TIV_percentage / 100).astype(int)
+    num_to_delete = male.shape[0] - np.round(male.shape[0] * TIV_percentage
+                                             / 100).astype(int)
 
     gender_TIV = male["TIV"]
 
     sort_index = np.argsort(gender_TIV.to_numpy())
 
-    TIV_to_remove = male.iloc[sort_index[num_to_delete], 4]
+    TIV_to_remove = male.iloc[sort_index[num_to_delete], 5]
 
-    mask = np.where(gender_TIV > TIV_to_remove.to_numpy())
+    mask = np.where(gender_TIV > TIV_to_remove)
 
     male.reset_index(inplace=True)
 
     males_to_keep = male.drop(mask[0])
 
     # select females
-    num_to_delete = np.round(female.shape[0] * TIV_percentage / 100).astype(int)
+    num_to_delete = np.round(female.shape[0] * TIV_percentage
+                             / 100).astype(int)
 
     gender_TIV = female["TIV"]
 
     sort_index = np.argsort(gender_TIV.to_numpy())
 
-    TIV_to_remove = female.iloc[sort_index[num_to_delete], 4]
+    TIV_to_remove = female.iloc[sort_index[num_to_delete], 5]
 
-    mask = np.where(gender_TIV < TIV_to_remove.to_numpy())
+    mask = np.where(gender_TIV < TIV_to_remove)
 
     female.reset_index(inplace=True)
     females_to_keep = female.drop(mask[0])
 
-    index_to_keep = pd.concat([males_to_keep["index"], females_to_keep["index"]])
+    index_to_keep = pd.concat([males_to_keep["index"],
+                               females_to_keep["index"]])
 
     y_tvi = Y.drop(index_to_keep)
 
@@ -172,29 +162,36 @@ def remove_extreme_TIV(X, Y, TIV_percentage):
 
 
 def table_generation(data, stats=["Age_bias", "R2", "MAE"]):
-
-    harm_modes = np.unique(data["harmonize_mode"])
+    # Get Harmonizations modes
+    harm_modes = np.unique(data["Harmonization Schemes"])
+    # Initialize a table as a dataframe
     table = pd.DataFrame(columns=harm_modes, index=stats)
 
+    # Iterate over each mode
     for mode in harm_modes:
-        resut_mode = data[data["harmonize_mode"] == mode]
+        # Get the results for the mode
+        resut_mode = data[data["Harmonization Schemes"] == mode]
 
-        predicted_age = resut_mode["y_pred"]
-        true_age = resut_mode["y_true"]
+        # Get the predictions
+        y_pred = resut_mode["y_pred"]
+        # Get the ground true
+        y_true = resut_mode["y_true"]
 
+        # Initialize a list for the requested stadistics
         final_stat = []
         for stat in stats:
             if stat == "Age_bias":
-                age_bias = np.corrcoef(true_age, predicted_age-true_age)[0, 1]
+                age_bias = np.corrcoef(y_true, y_pred-y_true)[0, 1]
                 final_stat = np.append(final_stat, age_bias)
             elif stat == "R2":
-                r2_data = r2_score(true_age, predicted_age)
+                r2_data = r2_score(y_true, y_pred)
                 final_stat = np.append(final_stat, r2_data)
             elif stat == "MAE":
-                error_data = mean_absolute_error(true_age, np.round(predicted_age))
+                error_data = mean_absolute_error(np.round(y_true),
+                                                 np.round(y_pred))
                 final_stat = np.append(final_stat, error_data)
             elif stat == "ACC":
-                error_data = accuracy_score(true_age, np.round(predicted_age))
+                error_data = accuracy_score(y_true, np.round(y_pred))
                 final_stat = np.append(final_stat, error_data)
 
         table[mode] = final_stat
@@ -295,7 +292,7 @@ def plot_grup_barplot(data, exlude_notarget=True, absolute_error=True,
     g = sbn.catplot(
         data=data, kind="boxen",
         x="site", y="y_diff", hue="harmonize_mode",
-        height=6, hue_order=sort_mode, legend=harm_modes
+        height=10, hue_order=sort_mode, legend=harm_modes
     )
     g.set_axis_labels("", "Prediction difference")
     plt.xlabel("Dataset")
@@ -338,6 +335,8 @@ def extract_experiment_data_oos(exp_dir, exp_name, train_acc=False):
 
         results_df = pd.concat(all_dfs)
 
+    results_df["fold"] = 1
+    results_df["repeat"] = 1
     return results_df
 
 
@@ -373,7 +372,7 @@ def classification_table(data, harm_modes=None, stats=["acc"]):
     return table.T
 
 
-def get_fold_acc_auc(results_df, repeat=False):
+def get_fold_acc_auc(results_df):
     # Compute ACC and AUC for each fold.
     acc_fold = []
     data_final = pd.DataFrame(columns=["acc", "auc", "site",
@@ -381,31 +380,75 @@ def get_fold_acc_auc(results_df, repeat=False):
     site_fold = []
     harm_fold = []
     auc_fold = []
-    # For each site
-    if repeat:
-        results_df["fold"] = results_df["fold"] * 10 + results_df["repeat"]
+    F1_fold = []
+    balance_acc = []
+    APS_fold = []
 
-    for site in np.unique(results_df["site"]):
-        results_site = results_df[results_df["site"] == site]
+    folds = results_df["fold"]
+    n_folds = len(np.unique(results_df["fold"]))
+    results_df["i_fold"] = results_df["repeat"] * n_folds + folds
+
+    # For each mehods
+    for harm in np.unique(results_df["Harmonization Schemes"]):
+        results_harm = results_df[results_df["Harmonization Schemes"] == harm]
+
         # For each fold
-        for fold in np.unique(results_site["fold"]):
-            results_fold = results_site[results_site["fold"] == fold]
-            # For each mehods
-            for harm in np.unique(results_fold["harmonize_mode"]):
+        for fold in np.unique(results_harm["i_fold"]):
+            results_fold = results_harm[results_harm["i_fold"] == fold]
+            site_fold.append("Global")
+            harm_fold.append(harm)
+            # Compute ACC
+            acc_fold.append(accuracy_score(results_fold["y_true"],
+                            np.round(results_fold["y_pred"])))
+            balance_acc.append(
+                balanced_accuracy_score(results_fold["y_true"],
+                                        np.round(results_fold["y_pred"])))
+            # Compute AUC
+            if len(np.unique(results_fold["y_true"])) < 2:
+                auc_fold.append(np.NaN)
+                F1_fold.append(np.NaN)
+                APS_fold.append(np.NaN)
+            else:
+                auc_fold.append(roc_auc_score(results_fold["y_true"],
+                                              results_fold["y_pred"]))
+                F1_fold.append(f1_score(results_fold["y_true"],
+                                        np.round(results_fold["y_pred"])))
+                APS_fold.append(
+                    average_precision_score(results_fold["y_true"],
+                                            results_fold["y_pred"]))
 
-                results_harm = results_fold[results_fold["harmonize_mode"] == harm]
+            for site in np.unique(results_fold["site"]):
+                results_site = results_fold[results_fold["site"] == site]
+
                 # Compute ACC
-                acc_fold.append(accuracy_score(results_harm["y_true"],
-                                np.round(results_harm["y_pred"])))
+                acc_fold.append(accuracy_score(results_site["y_true"],
+                                np.round(results_site["y_pred"])))
+                balance_acc.append(
+                    balanced_accuracy_score(results_site["y_true"],
+                                            np.round(results_site["y_pred"])))
                 # Compute AUC
-                auc_fold.append(roc_auc_score(results_harm["y_true"],
-                                results_harm["y_pred"]))
+                if len(np.unique(results_site["y_true"])) < 2:
+                    auc_fold.append(np.NaN)
+                    F1_fold.append(np.NaN)
+                    APS_fold.append(np.NaN)
+                else:
+                    auc_fold.append(roc_auc_score(results_site["y_true"],
+                                                  results_site["y_pred"]))
+                    F1_fold.append(f1_score(results_site["y_true"],
+                                            np.round(results_site["y_pred"])))
+                    APS_fold.append(
+                        average_precision_score(results_site["y_true"],
+                                                results_site["y_pred"]))
                 site_fold.append(site)
                 harm_fold.append(harm)
 
     # Create final Dataframe
     data_final["acc"] = np.array(acc_fold)
-    data_final["auc"] = np.array(acc_fold)
+    data_final["auc"] = np.array(auc_fold)
+    data_final["f1"] = np.array(F1_fold)
+    data_final["balance_acc"] = np.array(balance_acc)
+    data_final["APS"] = np.array(APS_fold)
+
     data_final["site"] = site_fold
     data_final["Harmonization Schemes"] = harm_fold
     return data_final

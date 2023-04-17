@@ -1,13 +1,6 @@
 # %%
-import numpy as np
-import pandas as pd
 from pathlib import Path
 import sys
-from sklearn.metrics import (
-    mean_absolute_error,
-)
-import matplotlib.pyplot as plt
-import seaborn as sbn
 
 dir_path = '/home/nnieto/Nico/Harmonization/harmonize_project/3_check_results/'
 __file__ = dir_path+'plot_results_cv.py'
@@ -29,8 +22,7 @@ table = table_generation(results_df)
 print(table)
 
 plot_grup_barplot(results_df, True, True)
-plot_grup_barplot(results_df, True, False, ["pretend", "cheat",
-                                            "target", "none"])
+plot_grup_barplot(results_df, True, False, )
 
 plot_barplot(results_df, True, False)
 plot_barplot(results_df, True, True)
@@ -205,5 +197,49 @@ table = table_generation(results_df)
 plot_barplot(results_df, True, False)
 plot_grup_barplot(results_df, True, False, ["pretend", "cheat",
                                             "target", "none"])
+
+# %%
+exp_dir = "/home/nnieto/Nico/Harmonization/results_classification/"
+experiments_to_check = {
+        'test_classification_all_big_logit_stack'
+}
+
+results_df = extract_experiment_data(exp_dir, experiments_to_check, False)
+
+classification_table(results_df, stats=["auc"])
+# %%
+exp_dir = "/home/nnieto/Nico/Harmonization/results_classification/"
+experiments_to_check = {
+        'test_classification_all_big_logit_stack_age_prediction_45yo'
+}
+
+results_df = extract_experiment_data(exp_dir, experiments_to_check, False)
+
+classification_table(results_df, stats=["auc"])
+# %%
+exp_dir = "/home/nnieto/Nico/Harmonization/results_regression"
+experiments_to_check = {
+    'test_regression_all_big_rf_stack_rvr_pred'
+}
+
+results_df = extract_experiment_data(exp_dir, experiments_to_check)
+table = table_generation(results_df)
+print(table)
+
+plot_grup_barplot(results_df, True, False, ["pretend", "none", "target", "cheat"])
+
+
+# %%
+# %%
+exp_dir = "/home/nnieto/Nico/Harmonization/results_regression"
+experiments_to_check = {
+    'test_regression_all_bigs_all_aomic_rf_stack_rvr_pred'
+}
+
+results_df = extract_experiment_data(exp_dir, experiments_to_check)
+table = table_generation(results_df)
+print(table)
+
+plot_grup_barplot(results_df, True, False, ["pretend", "none", "target", "cheat"])
 
 # %%
