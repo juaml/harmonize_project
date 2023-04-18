@@ -127,7 +127,7 @@ def get_models(params, problem_type):
                     "kernel": [RBF(x, (1e-7, 10e7)) for x in [0.1, 1, 10]],
                 }
             ]
-            pred_model = GridSearchCV(
+            stack_model = GridSearchCV(
                 GPR(n_restarts_optimizer=5, normalize_y=True), params_gpr
             )
 
