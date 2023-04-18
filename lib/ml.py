@@ -74,7 +74,7 @@ def get_models(params, problem_type):
                                degree=1,
                                gamma='scale',
                                bias_used=True)
-
+    # #### Regression Models implemented
     else:
         # ['gsgpr', 'gssvm', 'ridgecv', 'rvr'],
         if pred_model == "gssvm":
@@ -97,19 +97,39 @@ def get_models(params, problem_type):
             pred_model = GridSearchCV(
                 GPR(n_restarts_optimizer=5, normalize_y=True), params_gpr
             )
+
         elif pred_model == "ridgecv":
             pred_model = RidgeCV()
+
         elif pred_model == "rvr":
             pred_model = RVR(kernel="poly", degree=1)
+
         elif pred_model == "LinearSVR":
             pred_model = LinearSVR()
+
         else:
             raise ValueError("Regression model not supported")
 
+        # Possible Stack Model
         if stack_model == "LinearSVR":
             stack_model = LinearSVR()
-        if stack_model == "rvr":
+
+        elif stack_model == "rvr":
             stack_model = RVR(kernel="poly", degree=1)
+
+        elif stack_model == "gsgpr":
+            kernel1 = RBF() + WhiteKernel()
+            kernel2 = DotProduct() + WhiteKernel()
+            params_gpr = {"kernel": [kernel1, kernel2]}
+            params_gpr = [
+                {
+                    "alpha": [1e-5],
+                    "kernel": [RBF(x, (1e-7, 10e7)) for x in [0.1, 1, 10]],
+                }
+            ]
+            pred_model = GridSearchCV(
+                GPR(n_restarts_optimizer=5, normalize_y=True), params_gpr
+            )
 
     if pca:
         pca80 = PCA(n_components=0.8, svd_solver="full")
