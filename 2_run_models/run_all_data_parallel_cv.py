@@ -17,7 +17,7 @@ from lib.harmonize import eval_harmonizer, train_harmonizer  # noqa
 from lib import io  # noqa
 from lib import ml  # noqa
 from lib.logging import logger, configure_logging  # noqa
-from lib.utils import check_params
+from lib.utils import check_params # noqa
 
 # Running Parameters
 

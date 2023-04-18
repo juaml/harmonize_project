@@ -11,7 +11,7 @@ from lib.harmonize import eval_harmonizer, train_harmonizer  # noqa
 from lib import io  # noqa
 from lib import ml  # noqa
 from lib.logging import logger, configure_logging  # noqa
-from lib.utils import check_params
+from lib.utils import check_params # noqa
 # Running Parameters
 
 configure_logging()
@@ -129,6 +129,7 @@ if problem_type == "regression":
 
 # ######################## Data loading and preprocessing
 data = io.get_MRI_data(params, problem_type, use_oos=True)
+
 X, y, sites, covars, Xoos, yoos, sitesoos, covarsoos = data  # type: ignore
 
 
@@ -143,7 +144,7 @@ harm_model = train_harmonizer(
     random_state=random_state,
     n_splits=10,
     regression_params=regression_params,
-    use_disk = use_disk,
+    use_disk=use_disk,
     n_jobs=n_jobs
 )
 
