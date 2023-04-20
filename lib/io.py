@@ -426,33 +426,13 @@ def filter_small_sites(min_num_images, X, y, sites):
     # Get unique site labels and their corresponding counts
     unique_sites, site_counts = np.unique(sites, return_counts=True)
 
-    # Filter out sites with fewer images than min_num_images
+    # Find the sites that have at least min_num_images images
     valid_sites = unique_sites[site_counts >= min_num_images]
 
-    # Create a dictionary to store the filtered data
-    filtered_data = {}
-
-    # Iterate over valid site labels
-    for site_label in valid_sites:
-        # Get indices of samples for the current site
-        site_indices = np.where(sites == site_label)[0]
-        # Shuffle the indices
-        np.random.shuffle(site_indices)
-        # Select the first min_num_images indices
-        selected_indices = site_indices[:min_num_images]
-        # Filter X, y, and site using the selected indices
-        filtered_data[site_label] = {
-            'X': X[selected_indices],
-            'y': y[selected_indices],
-            'site': sites[selected_indices]
-        }
-
-    # Update X, y, and site with the filtered data
-    X = np.vstack([filtered_data[site_label]['X']
-                   for site_label in valid_sites])
-    y = np.hstack([filtered_data[site_label]['y']
-                   for site_label in valid_sites])
-    sites = np.hstack([filtered_data[site_label]['site']
-                       for site_label in valid_sites])
+    # Filter X, y, and site using the valid sites
+    valid_indices = np.isin(sites, valid_sites)
+    X = X[valid_indices]
+    y = y[valid_indices]
+    sites = sites[valid_indices]
 
     return X, y, sites
