@@ -63,8 +63,6 @@ plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 
-
-
 for feature in features_to_plot:
     if median_sort:
         # Calculate global median
@@ -81,7 +79,7 @@ for feature in features_to_plot:
     fig, ax = plt.subplots(2, 1, figsize=[20, 15])
     sorted_sites = sorted_sites[0:n_sites_to_plot]
     pal = sbn.cubehelix_palette(sorted_sites.nunique(),
-                            rot=-.15, light=0.75, dark=0.4)
+                                rot=-.15, light=0.75, dark=0.4)
     ax[0] = sbn.boxplot(data=data_filter, y=feature, x="site", ax=ax[0],
                         order=sorted_sites, palette=pal)
     ax[0].axhline(data_filter.loc[:, feature].median(), lw=2, color="k",
@@ -106,7 +104,7 @@ for feature in features_to_plot:
 
 # Load predictions
 data_dir = "/home/nnieto/Nico/Harmonization/result_regression/results_regression/test_regression_all_big_rf_stack_rvr_pred/"
-resutls = pd.read_csv(data_dir + "pretend_fold_0_of_5_out.csv",
+resutls = pd.read_csv(data_dir + "none_fold_0_of_5_out.csv",
                       sep=";")
 resutls.rename(columns={"y_true": "True Age", "y_pred": "Predicted Age"},
                inplace=True)
@@ -132,4 +130,33 @@ plt.title("Model Predictions")
 plt.xlim([19.5, 80.5])
 plt.ylim([19.5, 80.5])
 
+# %%
+
+# Load predictions
+data_dir = "/home/nnieto/Nico/Harmonization/results_regression/test_all_bigs_regression_stack_gsgpr_pred_gsgpr_all_images/"
+resutls = pd.read_csv(data_dir + "none_fold_0_of_5_out.csv",
+                      sep=";")
+resutls.rename(columns={"y_true": "True Age", "y_pred": "Predicted Age"},
+               inplace=True)
+# print configuration
+SMALL_SIZE = 15
+MEDIUM_SIZE = 20
+BIGGER_SIZE = 30
+
+plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=BIGGER_SIZE)     # fontsize of the axes title
+plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+
+fig, ax = plt.subplots(1, 1, figsize=[20, 10])
+
+sbn.regplot(data=resutls, x="True Age", y="Predicted Age", ci=100, x_jitter=0,
+            scatter_kws={"s": 10}, ax=ax,
+            line_kws={"alpha": 0.7, "color": "red"})
+plt.title("Model Predictions")
+plt.xlim([19.5, 80.5])
+plt.ylim([19.5, 80.5])
 # %%

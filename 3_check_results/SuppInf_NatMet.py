@@ -11,9 +11,9 @@ __file__ = dir_path+'plot_NM.py'
 to_append = Path(__file__).resolve().parent.parent.as_posix()
 sys.path.append(to_append)
 
-from lib.utils import extract_experiment_data, get_fold_acc_auc
-from lib.utils import table_generation, extract_experiment_data
-from lib.utils import extract_experiment_data_oos
+from lib.utils import extract_experiment_data, get_fold_acc_auc # noqa
+from lib.utils import table_generation, extract_experiment_data # noqa
+from lib.utils import extract_experiment_data_oos # noqa
 # %% K features
 
 SMALL_SIZE = 15
@@ -317,4 +317,143 @@ plt.show()
 table = table_generation(data)
 print(table)
 
+# %% Number of images progression
+
+number_used = [50, 100, 150, 200, 250, 300, 350]
+data_final = []
+exp_dir = "/home/nnieto/Nico/Harmonization/results_regression/progression_experiment"
+for n_ima in number_used:
+    experiments_to_check = {'test_all_bigs_regression_stack_gsgpr_pred_gsgpr_' + str(n_ima) + '_images'}
+    data = extract_experiment_data_oos(exp_dir, experiments_to_check)
+    data["n_images"] = n_ima
+    print(n_ima)
+    data_final.append(data)
+
+data_final = pd.concat(data_final)
+
+data_final["y_diff"] = (data_final["y_true"] -
+                              data_final["y_pred"])
+
+data_final["harmonize_mode"].replace({"pretend": "JuHarmonize",
+                                       "target": "Leakage",
+                                       "none": "None",
+                                       "cheat": "Cheat"}, inplace=True)
+harm_modes = ["JuHarmonize", "None"]
+
+data_final = data_final[data_final["harmonize_mode"].isin(harm_modes)]
+
+sites_plot = ["ID1000"]
+
+data_final = data_final[data_final["site"].isin(sites_plot)]
+
+_, ax = plt.subplots(1, 1, figsize=[20, 10])
+
+sbn.boxplot(data=data_final, x="n_images", y="y_diff", hue="harmonize_mode",
+            ax=ax, hue_order=harm_modes)
+plt.grid()
+# %%
+# %%
+
+exp_dir = "/home/nnieto/Nico/Harmonization/results_regression/progression_experiment"
+experiments_to_check = {'test_all_bigs_regression_stack_gsgpr_pred_gsgpr_all_images'}
+data = extract_experiment_data_oos(exp_dir, experiments_to_check)
+
+
+data["site"].replace({"1000Gehirne": "1000Brains",
+                      "ID1000": "AOMIC-ID1000"}, inplace=True)
+
+
+data["harmonize_mode"].replace({"pretend": "JuHarmonize",
+                                "target": "Leakage",
+                                "none": "None",
+                                "cheat": "Cheat"}, inplace=True)
+
+harm_modes = ["JuHarmonize", "Cheat", "Leakage", "None"]
+
+data["y_diff"] = (data["y_true"]-data["y_pred"])
+
+data.rename(columns={"harmonize_mode": "Harmonization Schemes"},
+            inplace=True)
+
+pal = sbn.cubehelix_palette(4, rot=-.15, light=0.85, dark=0.3)
+sbn.catplot(
+    data=data, kind="boxen",
+    x="site", y="y_diff", hue="Harmonization Schemes",
+    height=12, hue_order=harm_modes, legend_out=False,
+    order=["AOMIC-ID1000", "eNKI", "1000Brains", "CamCAN"],
+    palette=pal
+)
+plt.ylabel("Age prediction difference [years]")
+plt.xlabel("Site Name")
+
+plt.title("Harmonization Schemes")
+# sbn.move_legend(g, "upper right", bbox_to_anchor=(0.90, 0.98), frameon=False)
+plt.title("Age Prediction")
+plt.grid(alpha=0.5, axis="y", c="black")
+plt.show()
+table = table_generation(data)
+print(table)
+# %% Separated by classifier
+
+exp_dir = "/home/nnieto/Nico/Harmonization/results_regression/progression_experiment"
+experiments_to_check = {'test_all_bigs_regression_stack_rvr_pred_rvr_all_images'}
+data1 = extract_experiment_data_oos(exp_dir, experiments_to_check)
+data1["stack_model"] = "rvr"
+data1["pred_model"] = "rvr"
+data1["models"] = "stack_rvr_pred_rvr"
+
+exp_dir = "/home/nnieto/Nico/Harmonization/results_regression/"
+experiments_to_check = {'test_all_bigs_regression_stack_gsgpr_pred_gsgpr_all_images'}
+data2 = extract_experiment_data_oos(exp_dir, experiments_to_check)
+data2["stack_model"] = "gsgpr"
+data2["pred_model"] = "gsgpr"
+data2["models"] = "stack_gsgpr_pred_gsgpr"
+
+exp_dir = "/home/nnieto/Nico/Harmonization/results_r8"
+experiments_to_check = {'test_all_regression_r8'}
+
+data3 = extract_experiment_data(exp_dir, experiments_to_check)
+
+data3["stack_model"] = "rf"
+data3["pred_model"] = "rvr_original"
+data3["models"] = "stack_rf_pred_rvr"
+
+data = pd.concat([data1, data3, data2])
+
+data["site"].replace({"1000Gehirne": "1000Brains",
+                      "ID1000": "AOMIC-ID1000"}, inplace=True)
+
+
+data["harmonize_mode"].replace({"pretend": "JuHarmonize",
+                                "target": "Leakage",
+                                "none": "None",
+                                "cheat": "Cheat"}, inplace=True)
+
+harm_modes = ["None"]
+data = data[data["harmonize_mode"].isin(harm_modes)]
+
+
+data["y_diff"] = (data["y_true"]-data["y_pred"])
+
+data.rename(columns={"harmonize_mode": "Harmonization Schemes"},
+            inplace=True)
+
+pal = sbn.cubehelix_palette(4, rot=-.15, light=0.85, dark=0.3)
+sbn.catplot(
+    data=data, kind="boxen",
+    x="site", y="y_diff", hue="pred_model",
+    height=12, legend_out=False,
+
+    palette=pal
+)
+plt.ylabel("Age prediction difference [years]")
+plt.xlabel("Site Name")
+
+plt.title("Harmonization Schemes")
+# sbn.move_legend(g, "upper right", bbox_to_anchor=(0.90, 0.98), frameon=False)
+plt.title("Age Prediction with None")
+plt.grid(alpha=0.5, axis="y", c="black")
+plt.show()
+table = table_generation(data)
+print(table)
 # %%

@@ -38,7 +38,7 @@ harm_modes = ["JuHarmonize", "Leakage", "None"]
 if harm_modes is None:
     harm_modes = np.unique(data["harmonize_mode"]).tolist()
 
-
+pal = sbn.cubehelix_palette(len(harm_modes), rot=-.15, light=0.75, dark=0.4)
 final_stat = []
 for mode in harm_modes:
     resut_mode = data[data["harmonize_mode"] == mode]
@@ -59,11 +59,13 @@ data["y_diff"] = data["y_true"]-data["y_pred"]
 g = sbn.catplot(
     data=data, kind="boxen",
     x="site", y="y_diff", hue="harmonize_mode",
-    height=10, hue_order=sort_mode, legend_out=True
+    height=10, hue_order=sort_mode, legend_out=True,
+    palette=pal
 )
 g.set_axis_labels("", "Age prediction difference [years]")
 g.legend.set_title("Harmonization Schemes")
 sbn.move_legend(g, "upper right", bbox_to_anchor=(0.90, 0.98), frameon=False)
 
 plt.grid(alpha=0.5, axis="y", c="black")
+plt.savefig("/home/nnieto/Nico/Trabajos enviados/2023-06 Helmholtz AI/Harmonization Results HelAI.jpg")
 # %%

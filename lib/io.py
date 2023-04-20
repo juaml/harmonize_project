@@ -116,7 +116,15 @@ def set_argparse_params(parser, use_oos=False):
         "--min_num_images",
         type=int,
         default=-1,
-        help="Positive Value: Filter all site so keep to the number of images."
+        help="Positive Value: Filter all site with less that the passed images"
+             "Negative value: Do Nothing"
+    )
+
+    parser.add_argument(
+        "--images_by_site",
+        type=int,
+        default=-1,
+        help="Positive Value: Keep to the number of images in all sites."
              "Cero: Filter all sites to match the site with less images."
              "Negative value: Do Nothing"
     )
@@ -223,6 +231,14 @@ def postprocess_data(
     assert not np.any(np.isnan(X))
     assert not np.any(np.isinf(X))
 
+    # Delete those site with too few images
+    if min_num_images > 0:
+        X, y, sites = filter_small_sites(min_num_images, X, y, sites)
+        logger.info("Remove sites with less than "
+                    + str(min_num_images) + " images")
+    else:
+        logger.info("No filter of small sites")
+
     # harmonization fails with low variance features
     if idxvar is None:
         colvar = np.var(X, axis=0)
@@ -240,47 +256,6 @@ def postprocess_data(
             # Keep the minimun of
             id_keep = np.min([n_high_var_feats, idxvar.shape[0]])
             idxvar = idxvar[range(0, id_keep)]
-
-    # Filter number of
-    if min_num_images >= 0:
-        # Filter all sites to the passed number
-        filtered_data = {}
-        # Iterate over unique site labels
-        unique_sites = np.unique(sites)
-
-        if min_num_images == 0:
-            # If 0 is pass, put all the data
-            unique_sites, site_counts = np.unique(sites, return_counts=True)
-            min_num_images = np.min(site_counts)
-
-        for site_label in unique_sites:
-            # Get indices of samples for the current site
-            site_indices = np.where(sites == site_label)[0]
-            # Shuffle the indices
-            np.random.shuffle(site_indices)
-            # Select the first min_num_images indices
-            selected_indices = site_indices[:min_num_images]
-            # Filter X, y, and site using the selected indices
-            filtered_data[site_label] = {
-                'X': X[selected_indices],
-                'y': y[selected_indices],
-                'site': sites[selected_indices]
-            }
-
-        # Update X, y, and site with the filtered data
-        X = np.vstack([filtered_data[site_label]['X']
-                       for site_label in unique_sites])
-        y = np.hstack([filtered_data[site_label]['y']
-                       for site_label in unique_sites])
-        sites = np.hstack([filtered_data[site_label]['site']
-                           for site_label in unique_sites])
-        unique_sites, site_counts = np.unique(sites, return_counts=True)
-
-        logger.info("Number of images in each site" + str(site_counts))
-
-    elif min_num_images < 0:
-        # Do not change the number of images
-        logger.info("No filter in the number of images")
 
     # Keep the features with large variance
     X = X[:, idxvar]
@@ -388,6 +363,7 @@ def get_MRI_data(params, problem_type, use_oos=False):
             unify_sites_names,
             n_high_var_feats,
             cutoff_age=cutoff_age,
+            # Sites to test can have any number of images
             min_num_images=-1,
             idxvar=idxvar,
         )
@@ -397,3 +373,86 @@ def get_MRI_data(params, problem_type, use_oos=False):
         out = X, y, sites, covars
     logger.info("Data reading done!")
     return out
+
+
+def keep_n_images_by_site(images_by_site, X, y, sites):
+
+    # Filter number of
+    if images_by_site >= 0:
+        # Filter all sites to the passed number
+        filtered_data = {}
+        # Iterate over unique site labels
+        unique_sites = np.unique(sites)
+
+        if images_by_site == 0:
+            # If 0 is pass, put all the data
+            unique_sites, site_counts = np.unique(sites, return_counts=True)
+            images_by_site = np.min(site_counts)
+
+        for site_label in unique_sites:
+            # Get indices of samples for the current site
+            site_indices = np.where(sites == site_label)[0]
+            # Shuffle the indices
+            np.random.shuffle(site_indices)
+            # Select the first images_by_site indices
+            selected_indices = site_indices[:images_by_site]
+            # Filter X, y, and site using the selected indices
+            filtered_data[site_label] = {
+                'X': X[selected_indices],
+                'y': y[selected_indices],
+                'site': sites[selected_indices]
+            }
+
+        # Update X, y, and site with the filtered data
+        X = np.vstack([filtered_data[site_label]['X']
+                       for site_label in unique_sites])
+        y = np.hstack([filtered_data[site_label]['y']
+                       for site_label in unique_sites])
+        sites = np.hstack([filtered_data[site_label]['site']
+                           for site_label in unique_sites])
+        unique_sites, site_counts = np.unique(sites, return_counts=True)
+
+        logger.info("Number of images in each site" + str(site_counts))
+
+    elif images_by_site < 0:
+        # Do not change the number of images
+        logger.info("No filter in the number of images")
+
+    return X, y, sites
+
+
+def filter_small_sites(min_num_images, X, y, sites):
+
+    # Get unique site labels and their corresponding counts
+    unique_sites, site_counts = np.unique(sites, return_counts=True)
+
+    # Filter out sites with fewer images than min_num_images
+    valid_sites = unique_sites[site_counts >= min_num_images]
+
+    # Create a dictionary to store the filtered data
+    filtered_data = {}
+
+    # Iterate over valid site labels
+    for site_label in valid_sites:
+        # Get indices of samples for the current site
+        site_indices = np.where(sites == site_label)[0]
+        # Shuffle the indices
+        np.random.shuffle(site_indices)
+        # Select the first min_num_images indices
+        selected_indices = site_indices[:min_num_images]
+        # Filter X, y, and site using the selected indices
+        filtered_data[site_label] = {
+            'X': X[selected_indices],
+            'y': y[selected_indices],
+            'site': sites[selected_indices]
+        }
+
+    # Update X, y, and site with the filtered data
+    X = np.vstack([filtered_data[site_label]['X']
+                   for site_label in valid_sites])
+    y = np.hstack([filtered_data[site_label]['y']
+                   for site_label in valid_sites])
+    sites = np.hstack([filtered_data[site_label]['site']
+                       for site_label in valid_sites])
+
+    return X, y, sites

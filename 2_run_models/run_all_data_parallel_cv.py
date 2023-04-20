@@ -146,6 +146,10 @@ problem_type = params.problem_type
 fold_to_do = params.fold
 select_k = params.select_k
 
+# Data processing
+min_num_images = params.min_num_images
+images_by_site = params.images_by_site
+
 # Harmonizaton set up
 harm_n_splits = params.harm_n_splits
 harmonize_mode = params.harmonize_mode
@@ -221,6 +225,17 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
     X_train, sites_train, y_train, covars_train, _ = subset_data(
         train_index, X, sites, y, covars
     )
+
+    # Keep the same number of images for each site
+    if images_by_site >= 0:
+        X_train, sites_train, y_train, covars_train = io.keep_n_images_by_site(
+                                                        images_by_site,
+                                                        X_train,
+                                                        sites_train,
+                                                        y_train,
+                                                        covars_train)
+    else:
+        logger.info("No filter in the number of images")
 
     X_test, sites_test, y_test, covars_test, _ = subset_data(
         test_index, X, sites, y, covars

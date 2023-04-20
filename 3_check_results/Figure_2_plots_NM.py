@@ -15,8 +15,8 @@ __file__ = dir_path+'plot_NM.py'
 to_append = Path(__file__).resolve().parent.parent.as_posix()
 sys.path.append(to_append)
 
-from lib.utils import extract_experiment_data, get_fold_acc_auc
-from lib.utils import table_generation
+from lib.utils import extract_experiment_data, get_fold_acc_auc # noqa
+from lib.utils import table_generation # noqa
 
 
 # %%
@@ -241,7 +241,8 @@ data["harmonize_mode"].replace({"pretend": "JuHarmonize",
                                 "target": "Passing Age as Covar",
                                 "none": "Just Pooling data",
                                 "cheat": "Cheat",
-                                "notarget": "NOT Passing Age as Covar"}, inplace=True)
+                                "notarget": "NOT Passing Age as Covar"},
+                               inplace=True)
 
 harm_modes = ["Passing Age as Covar", "NOT Passing Age as Covar"]
 
@@ -306,3 +307,61 @@ plt.grid(alpha=0.5, axis="y", c="black")
 plt.show()
 
 # %%
+
+
+exp_dir = "/home/nnieto/Nico/Harmonization/results_regression/"
+experiments_to_check = {
+    'test_all_bigs_regression_stack_gsgpr_pred_gsgpr_all_images'
+}
+
+data = extract_experiment_data(exp_dir, experiments_to_check)
+
+
+data["site"].replace({"1000Gehirne": "1000Brains",
+                      "ID1000": "AOMIC-ID1000"}, inplace=True)
+
+
+data["harmonize_mode"].replace({"pretend": "JuHarmonize",
+                                "target": "Leakage",
+                                "none": "None",
+                                "cheat": "Cheat"}, inplace=True)
+
+harm_modes = ["JuHarmonize", "Cheat", "Leakage", "None"]
+
+final_stat = []
+for mode in harm_modes:
+    resut_mode = data[data["harmonize_mode"] == mode]
+    predicted_age = resut_mode["y_pred"]
+    true_age = resut_mode["y_true"]
+    error_data = mean_absolute_error(true_age, np.round(predicted_age))
+    final_stat = np.append(final_stat, error_data)
+
+to_sort = [harm_modes, final_stat]
+df = pd.DataFrame(to_sort, index=["method", "value"])
+df = df.sort_values(by="value", axis=1)
+df = df.T
+sort_mode = df["method"]
+
+data["y_diff"] = (data["y_true"]-data["y_pred"])
+
+data.rename(columns={"harmonize_mode": "Harmonization Schemes"},
+            inplace=True)
+
+pal = sbn.cubehelix_palette(4, rot=-.15, light=0.85, dark=0.3)
+sbn.catplot(
+    data=data, kind="boxen",
+    x="site", y="y_diff", hue="Harmonization Schemes",
+    height=12, hue_order=harm_modes, legend_out=False,
+    order=["AOMIC-ID1000", "eNKI", "1000Brains", "CamCAN"],
+    palette=pal
+)
+plt.ylabel("Age prediction difference [years]")
+plt.xlabel("Site Name")
+
+plt.title("Harmonization Schemes")
+# sbn.move_legend(g, "upper right", bbox_to_anchor=(0.90, 0.98), frameon=False)
+plt.title("Age Prediction")
+plt.grid(alpha=0.5, axis="y", c="black")
+plt.show()
+table = table_generation(data)
+print(table)
