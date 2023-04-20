@@ -410,9 +410,12 @@ def keep_n_images_by_site(images_by_site, X, y, sites):
                        for site_label in unique_sites])
         sites = np.hstack([filtered_data[site_label]['site']
                            for site_label in unique_sites])
+        
         unique_sites, site_counts = np.unique(sites, return_counts=True)
-
-        logger.info("Number of images in each site" + str(site_counts))
+        
+        logger.info("Number of unique sites: " + str(unique_sites))
+        logger.info("Number of images in each site: " + str(site_counts))
+        logger.info("=============================")
 
     elif images_by_site < 0:
         # Do not change the number of images
