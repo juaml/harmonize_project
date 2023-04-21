@@ -377,6 +377,12 @@ def get_MRI_data(params, problem_type, use_oos=False):
 
 def keep_n_images_by_site(images_by_site, X, y, sites):
 
+    unique_sites, site_counts = np.unique(sites, return_counts=True)
+    logger.info("Images before balance by site")
+    logger.info("Number of unique sites: " + str(unique_sites))
+    logger.info("Number of images in each site: " + str(site_counts))
+    logger.info("=============================")
+
     # Filter number of
     if images_by_site >= 0:
         # Filter all sites to the passed number
@@ -395,6 +401,7 @@ def keep_n_images_by_site(images_by_site, X, y, sites):
             # Shuffle the indices
             np.random.shuffle(site_indices)
             # Select the first images_by_site indices
+            # TODO: Add restriction if images_by_site is larger than the images
             selected_indices = site_indices[:images_by_site]
             # Filter X, y, and site using the selected indices
             filtered_data[site_label] = {
@@ -410,9 +417,9 @@ def keep_n_images_by_site(images_by_site, X, y, sites):
                        for site_label in unique_sites])
         sites = np.hstack([filtered_data[site_label]['site']
                            for site_label in unique_sites])
-        
+
         unique_sites, site_counts = np.unique(sites, return_counts=True)
-        
+
         logger.info("Number of unique sites: " + str(unique_sites))
         logger.info("Number of images in each site: " + str(site_counts))
         logger.info("=============================")
