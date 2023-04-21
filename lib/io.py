@@ -378,10 +378,7 @@ def get_MRI_data(params, problem_type, use_oos=False):
 def keep_n_images_by_site(images_by_site, X, y, sites):
 
     unique_sites, site_counts = np.unique(sites, return_counts=True)
-    logger.info("Images before balance by site")
-    logger.info("Number of unique sites: " + str(unique_sites))
-    logger.info("Number of images in each site: " + str(site_counts))
-    logger.info("=============================")
+    logger.info("Images to keep by site: " + str(images_by_site))
 
     # Filter number of
     if images_by_site >= 0:
@@ -420,7 +417,7 @@ def keep_n_images_by_site(images_by_site, X, y, sites):
 
         unique_sites, site_counts = np.unique(sites, return_counts=True)
 
-        logger.info("Number of unique sites: " + str(unique_sites))
+        logger.info("Unique sites: " + str(unique_sites))
         logger.info("Number of images in each site: " + str(site_counts))
         logger.info("=============================")
 

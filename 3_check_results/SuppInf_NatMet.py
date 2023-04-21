@@ -323,8 +323,8 @@ number_used = [50, 100, 150, 200, 250, 300, 350]
 data_final = []
 exp_dir = "/home/nnieto/Nico/Harmonization/results_regression/progression_experiment"
 for n_ima in number_used:
-    experiments_to_check = {'test_all_bigs_regression_stack_gsgpr_pred_gsgpr_' + str(n_ima) + '_images'}
-    data = extract_experiment_data_oos(exp_dir, experiments_to_check)
+    experiments_to_check = {'test_all_bigs_regression_stack_rf_pred_rvr_' + str(n_ima) + '_images'}
+    data = extract_experiment_data(exp_dir, experiments_to_check)
     data["n_images"] = n_ima
     print(n_ima)
     data_final.append(data)
@@ -332,24 +332,24 @@ for n_ima in number_used:
 data_final = pd.concat(data_final)
 
 data_final["y_diff"] = (data_final["y_true"] -
-                              data_final["y_pred"])
+                        data_final["y_pred"])
 
 data_final["harmonize_mode"].replace({"pretend": "JuHarmonize",
-                                       "target": "Leakage",
-                                       "none": "None",
-                                       "cheat": "Cheat"}, inplace=True)
-harm_modes = ["JuHarmonize", "None"]
+                                      "target": "Leakage",
+                                      "none": "None",
+                                      "cheat": "Cheat"}, inplace=True)
+harm_modes = ["predict"]
 
 data_final = data_final[data_final["harmonize_mode"].isin(harm_modes)]
 
-sites_plot = ["ID1000"]
+# sites_plot = ["ID1000"]
 
-data_final = data_final[data_final["site"].isin(sites_plot)]
+# data_final = data_final[data_final["site"].isin(sites_plot)]
 
 _, ax = plt.subplots(1, 1, figsize=[20, 10])
 
-sbn.boxplot(data=data_final, x="n_images", y="y_diff", hue="harmonize_mode",
-            ax=ax, hue_order=harm_modes)
+sbn.boxplot(data=data_final, x="site", y="y_diff", hue="n_images",
+            ax=ax)
 plt.grid()
 # %%
 # %%
