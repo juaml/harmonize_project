@@ -200,13 +200,13 @@ def table_generation(data, stats=["Age_bias", "R2", "MAE"]):
 
 
 def plot_barplot(data, exlude_notarget=True, absolute_error=True):
-    harm_modes = np.unique(data["harmonize_mode"]).tolist()
+    harm_modes = np.unique(data["Harmonization Schemes"]).tolist()
     if exlude_notarget:
         harm_modes.remove("notarget")
 
     final_stat = []
     for mode in harm_modes:
-        resut_mode = data[data["harmonize_mode"] == mode]
+        resut_mode = data[data["Harmonization Schemes"] == mode]
         predicted_age = resut_mode["y_pred"]
         true_age = resut_mode["y_true"]
         error_data = mean_absolute_error(true_age, np.round(predicted_age))
@@ -224,24 +224,24 @@ def plot_barplot(data, exlude_notarget=True, absolute_error=True):
         data["y_diff"] = data["y_true"] - np.round(data["y_pred"])
 
     plt.figure(figsize=[30, 15])
-    sbn.boxenplot(data, y="y_diff", x="harmonize_mode", order=sort_mode)
+    sbn.boxenplot(data, y="y_diff", x="Harmonization Schemes", order=sort_mode)
 
     return
 
 
 def plot_barplot_classification(data, exlude_notarget=True):
-    harm_modes = np.unique(data["harmonize_mode"]).tolist()
+    harm_modes = np.unique(data["Harmonization Schemes"]).tolist()
     if exlude_notarget:
         harm_modes.remove("notarget")
 
     data["acc"] = data["y_pred"]*0
     final_stat = []
     for mode in harm_modes:
-        resut_mode = data[data["harmonize_mode"] == mode]
+        resut_mode = data[data["Harmonization Schemes"] == mode]
         predicted_age = resut_mode["y_pred"]
         true_age = resut_mode["y_true"]
         error_data = accuracy_score(true_age, np.round(predicted_age))
-        data.loc[data["harmonize_mode"] == mode, "acc"] = error_data
+        data.loc[data["Harmonization Schemes"] == mode, "acc"] = error_data
         final_stat = np.append(final_stat, error_data)
 
     to_sort = [harm_modes, final_stat]
@@ -254,7 +254,7 @@ def plot_barplot_classification(data, exlude_notarget=True):
     true_age = resut_mode["y_true"]
 
     plt.figure(figsize=[30, 15])
-    sbn.barplot(data, y="acc", x="harmonize_mode", order=sort_mode)
+    sbn.barplot(data, y="acc", x="Harmonization Schemes", order=sort_mode)
 
     return
 
@@ -263,7 +263,7 @@ def plot_grup_barplot(data, exlude_notarget=True, absolute_error=True,
                       harm_modes=None):
 
     if harm_modes is None:
-        harm_modes = np.unique(data["harmonize_mode"]).tolist()
+        harm_modes = np.unique(data["Harmonization Schemes"]).tolist()
 
     if exlude_notarget:
         # Check the experiment have no target
@@ -272,7 +272,7 @@ def plot_grup_barplot(data, exlude_notarget=True, absolute_error=True,
 
     final_stat = []
     for mode in harm_modes:
-        resut_mode = data[data["harmonize_mode"] == mode]
+        resut_mode = data[data["Harmonization Schemes"] == mode]
         predicted_age = resut_mode["y_pred"]
         true_age = resut_mode["y_true"]
         error_data = mean_absolute_error(true_age, np.round(predicted_age))
@@ -291,7 +291,7 @@ def plot_grup_barplot(data, exlude_notarget=True, absolute_error=True,
 
     g = sbn.catplot(
         data=data, kind="boxen",
-        x="site", y="y_diff", hue="harmonize_mode",
+        x="site", y="y_diff", hue="Harmonization Schemes",
         height=10, hue_order=sort_mode, legend=harm_modes
     )
     g.set_axis_labels("", "Prediction difference")
@@ -315,6 +315,8 @@ def extract_experiment_data(exp_dir, exp_name, train_acc=False):
             all_dfs.append(pd.read_csv(t_fname, sep=';'))
 
         results_df = pd.concat(all_dfs)
+        results_df.rename(columns={"harmonize_mode": "Harmonization Schemes"},
+                          inplace=True)
     return results_df
 
 
@@ -337,18 +339,20 @@ def extract_experiment_data_oos(exp_dir, exp_name, train_acc=False):
 
     results_df["fold"] = 1
     results_df["repeat"] = 1
+    results_df.rename(columns={"harmonize_mode": "Harmonization Schemes"},
+                      inplace=True)
     return results_df
 
 
 def classification_table(data, harm_modes=None, stats=["acc"]):
 
     if harm_modes is None:
-        harm_modes = np.unique(data["harmonize_mode"])
+        harm_modes = np.unique(data["Harmonization Schemes"])
 
     table = pd.DataFrame(columns=harm_modes, index=stats)
 
     for mode in harm_modes:
-        resut_mode = data[data["harmonize_mode"] == mode]
+        resut_mode = data[data["Harmonization Schemes"] == mode]
 
         predicted_y = resut_mode["y_pred"]
         true_y = resut_mode["y_true"]
@@ -443,11 +447,11 @@ def get_fold_acc_auc(results_df):
                 harm_fold.append(harm)
 
     # Create final Dataframe
-    data_final["acc"] = np.array(acc_fold)
-    data_final["auc"] = np.array(auc_fold)
-    data_final["f1"] = np.array(F1_fold)
-    data_final["balance_acc"] = np.array(balance_acc)
-    data_final["APS"] = np.array(APS_fold)
+    data_final["Accuracy"] = np.array(acc_fold)
+    data_final["AUC"] = np.array(auc_fold)
+    data_final["F1"] = np.array(F1_fold)
+    data_final["Balanced Accuracy"] = np.array(balance_acc)
+    data_final["Average Presision Score"] = np.array(APS_fold)
 
     data_final["site"] = site_fold
     data_final["Harmonization Schemes"] = harm_fold

@@ -89,11 +89,11 @@ ABG_of_interes = ["paO2", "paCO2", "pH", "Base Excess",
                   "Hgb", "glucose", "bicarbonate", "lactate"]
 X = data.loc[:, ABG_of_interes].to_numpy()
 
-auc_none = get_auc_for_plot(pred_none, y_test_list,
-                            sites_test_list, fold_plot)
+auc_none = get_auc_for_plot(pred_none, y_test_list,             # noqa
+                            sites_test_list, fold_plot)         # noqa
 
-auc_harm = get_auc_for_plot(pred_cheat, y_test_list,
-                            sites_test_list, fold_plot)
+auc_harm = get_auc_for_plot(pred_cheat, y_test_list,            # noqa
+                            sites_test_list, fold_plot)         # noqa
 # %%
 fig, ax = plt.subplots(3, 1, figsize=[30, 20])
 

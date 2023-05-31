@@ -231,8 +231,8 @@ for i_fold, (train_index, test_index) in enumerate(kf.split(X)):
         X_train, sites_train, y_train = io.keep_n_images_by_site(
                                                         images_by_site,
                                                         X_train,
-                                                        sites_train,
-                                                        y_train)
+                                                        y_train,
+                                                        sites_train)
     else:
         logger.info("No filter in the number of images")
 

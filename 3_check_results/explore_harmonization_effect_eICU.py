@@ -21,7 +21,7 @@ plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 median_sort = True
 scaler_bool = False
 median_line_alpha = 0.7
-min_images_per_site = 30
+min_images_per_site = 50
 
 # Data loading
 root_dir = "/home/nnieto/Nico/Harmonization/data/eICU/"
@@ -75,7 +75,7 @@ for feature in features_to_plot:
         sorted_sites = medians_diff.sort_values(ascending=False).index
     else:
         sorted_sites = np.unique(data_filter["site"])
-    fig, ax = plt.subplots(3, 1, figsize=[20, 20])
+    fig, ax = plt.subplots(3, 1, figsize=[20, 25])
     ax[0] = sbn.boxplot(data=data_filter, y=feature, x="site", ax=ax[0],
                         order=sorted_sites)
     ax[0].axhline(data_filter.loc[:, feature].median(), lw=2, color="k",
