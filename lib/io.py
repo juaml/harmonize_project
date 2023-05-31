@@ -425,7 +425,7 @@ def keep_n_images_by_site(images_by_site, X, y, sites):
         # Do not change the number of images
         logger.info("No filter in the number of images")
 
-    return X, y, sites
+    return X, y, np.array(sites)
 
 
 def filter_small_sites(min_num_images, X, y, sites):
