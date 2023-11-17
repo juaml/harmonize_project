@@ -1,17 +1,16 @@
 import seaborn as sbn
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-from sklearn.metrics import (
-    mean_absolute_error,
-)
+import nibabel as nib
+import nibabel.processing as npr
+from nilearn import plotting
 
 
 def plot_regression(data, harm_modes, absolute):
     data["Harmonization Schemes"].replace({"pretend": "JuHarmonize",
-                                    "target": "Leakage",
-                                    "none": "None",
-                                    "cheat": "Cheat"}, inplace=True)
+                                           "target": "Leakage",
+                                           "none": "None",
+                                           "cheat": "Cheat"}, inplace=True)
 
     if absolute:
         data["y_diff"] = np.abs(data["y_true"]-data["y_pred"])
@@ -139,4 +138,48 @@ def plot_classification(data, harm_modes, site_order):
     plt.title("Gender Classification")
     plt.grid(alpha=0.5, axis="y", c="black")
     plt.show()
+    return
+
+
+def binarize_3d(img, threshold):
+    """binarize 3D spatial image"""
+    return nib.Nifti1Image(np.where(img.get_fdata() > threshold, 1, 0),
+                           img.affine, img.header)
+
+
+def map_values_to_brian(mask_dir, values, threshold,
+                        resample_size_maks, save_dir=None, colorbar=True):
+    # Load tha mask
+    mask = nib.load(mask_dir)
+    # Reshape the mask
+    mask_img_rs = npr.resample_to_output(mask, [resample_size_maks] * len(mask.shape), order=1)  # noqa
+    # Binarize with a fix threshold
+    mask_rs = binarize_3d(mask_img_rs, 0.5)
+    # get the data
+    mask_rs = mask_rs.get_fdata()
+    # Make sure that the mask have as many points as the features
+    assert (mask_rs.sum() == values.shape[0])
+    # flatten the mask to match the features
+    mask_rsample_rshape = mask_rs.reshape(-1, 1)
+    # Start replacing the mask with the values
+    position = 0
+    for index, num in enumerate(mask_rsample_rshape):
+        # if a 1 is found in the mask, replace the value
+        if num == 1:
+            # replace the value and update the position
+            mask_rsample_rshape[index][0] = values[position]
+            position = position + 1
+
+    # Make sure that all the features were used
+    assert (position == values.shape[0])
+    # Reshape back the mask in a volume
+    mask_weights = mask_rsample_rshape.reshape(mask_img_rs.shape)
+    # Create a Nifti image
+    mask_weights = nib.Nifti1Image(mask_weights, mask_img_rs.affine, mask_img_rs.header)      # noqa
+    # Create a glass plot with the passed threshold
+    plotting.plot_glass_brain(mask_weights, threshold=threshold,
+                              colorbar=colorbar)
+
+    if save_dir is not None:
+        nib.save(mask_weights, 'features_in_brain.nii')
     return
