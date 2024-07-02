@@ -8,7 +8,7 @@ from nilearn.datasets import load_mni152_template
 # Direction where the data is stored (Output of shaply_to_brain.py)
 root_dir = "../"
 # Load the initial data
-arbitrary_data = nib.load('/home/nnieto/Nico/Harmonization/harmonize_project/scratch/features_in_brain.nii') # noqa
+arbitrary_data = nib.load(root_dir+'/features_in_brain.nii') # noqa
 
 # Load the MNI template. Resolution 8mm
 mni_template = load_mni152_template(resolution=8)

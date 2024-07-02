@@ -1,5 +1,6 @@
 # %%
 import warnings
+import numpy as np
 import pandas as pd
 import seaborn as sbn
 import matplotlib.pyplot as plt
@@ -11,7 +12,7 @@ from sklearn.svm import SVC
 from sklearn.gaussian_process import GaussianProcessClassifier          # noqa
 from neuroHarmonize import harmonizationLearn, harmonizationApply
 from sklearn.metrics import balanced_accuracy_score
-
+# %%
 root_dir = "/home/nnieto/Nico/Harmonization/data/MAREoS/public_datasets/"
 save_dir = "/home/nnieto/Nico/Harmonization/results_classification/MAREoS/"
 
@@ -19,7 +20,7 @@ effects = ["true", "eos"]
 effect_types = ["simple", "interaction"]
 effect_examples = ["1", "2"]
 
-clf_name = "SVM"
+clf_name = "RF"
 random_state = 23
 
 if clf_name == "LASSO":
@@ -37,13 +38,15 @@ JuHarmonize_model = JuHarmonizeClassifier(pred_model=clf,
                                           stack_model="logit",
                                           random_state=random_state)
 warnings.filterwarnings(action="ignore", category=ConvergenceWarning)
-
 results = dict()
-harm_results = []
+Juharmonize_results = []
 simple_results = []
 cheat_results = []
 leakage_results = []
 notarget_results = []
+
+target_sites = ['site1', 'site8']
+
 for effect in effects:
     for e_types in effect_types:
         for e_example in effect_examples:
@@ -51,10 +54,16 @@ for effect in effects:
             example = effect+"_"+e_types+e_example
             print("Experiment name: " + example)
             data = pd.read_csv(root_dir+example+"_data.csv", index_col=0)
-            target = pd.read_csv(root_dir+example+"_response.csv", index_col=0)
+            sites = data["site"]
 
+            site_mask = np.isin(sites, target_sites)
+            data = data[site_mask]
             folds = data["folds"]
             sites = data["site"]
+
+            target = pd.read_csv(root_dir+example+"_response.csv", index_col=0)
+            target = target[site_mask]
+
             # Extract site numbers from strings
             site_numbers = sites.str.extract(r'site(\d+)').astype(int)
             # Convert to NumPy array
@@ -158,30 +167,45 @@ for effect in effects:
                                       sites=site_train.to_numpy())
                 y_pred = JuHarmonize_model.predict(X_test.to_numpy(),
                                                    sites=site_test)
-                harm_results.append([balanced_accuracy_score(y_true=y_test,
-                                                             y_pred=y_pred), fold, effect, e_types, e_example, example])                     # noqa
+                Juharmonize_results.append([balanced_accuracy_score(y_true=y_test,                                                                          # noqa
+                                                             y_pred=y_pred), fold, effect, e_types, e_example, example])                                    # noqa
 
 
 # Save results
-results_none = pd.DataFrame(data=simple_results, columns=['bACC', "Fold", "Effect", "Type", "Example", "Name"])                      # noqa
+results_none = pd.DataFrame(data=simple_results,
+                            columns=['bACC', "Fold", "Effect",
+                                     "Type", "Example", "Name"])
 results_none["Method"] = "None"
-results_Juharmonize = pd.DataFrame(data=harm_results, columns=['bACC', "Fold", "Effect", "Type", "Example", "Name"])                          # noqa
+
+results_Juharmonize = pd.DataFrame(data=Juharmonize_results,
+                                   columns=['bACC', "Fold", "Effect",
+                                            "Type", "Example", "Name"])
 results_Juharmonize["Method"] = "JuHarmonize"
-results_cheat = pd.DataFrame(data=cheat_results, columns=['bACC', "Fold", "Effect", "Type", "Example", "Name"])                          # noqa
+
+results_cheat = pd.DataFrame(data=cheat_results,
+                             columns=['bACC', "Fold", "Effect",
+                                      "Type", "Example", "Name"])
 results_cheat["Method"] = "Cheat"
-results_leakage = pd.DataFrame(data=leakage_results, columns=['bACC', "Fold", "Effect", "Type", "Example", "Name"])                          # noqa
+
+results_leakage = pd.DataFrame(data=leakage_results,
+                               columns=['bACC', "Fold", "Effect",
+                                        "Type", "Example", "Name"])
 results_leakage["Method"] = "Leakage"
-results_notarget = pd.DataFrame(data=notarget_results, columns=['bACC', "Fold", "Effect", "Type", "Example", "Name"])                          # noqa
+
+results_notarget = pd.DataFrame(data=notarget_results,
+                                columns=['bACC', "Fold", "Effect",
+                                         "Type", "Example", "Name"])
 results_notarget["Method"] = "No Target"
 
 results = pd.concat([results_none, results_Juharmonize,
                      results_cheat, results_leakage,
                      results_notarget])
-results.to_csv(save_dir+"results_"+clf_name+"_MAREoS_complete.csv")
+
+# results.to_csv(save_dir+"results_"+clf_name+"_MAREoS_complete.csv")
 
 # %% Plotting resuts
 
-# results = pd.read_csv("/home/nnieto/Nico/Harmonization/results_classification/MAREoS/results_SVM_MAREoS.csv")         # noqa
+# results = pd.read_csv("/home/nnieto/Nico/Harmonization/results_classification/MAREoS/results_RF_MAREoS_complete.csv")         # noqa
 fig, ax = plt.subplots(1, 1, figsize=[20, 15])
 
 harm_methods = ["JuHarmonize", "Cheat", "Leakage", "No Target", "None"]
@@ -209,7 +233,7 @@ plt.grid(axis="y")
 plt.show()
 # %%
 
-results = pd.read_csv("/home/nnieto/Nico/Harmonization/results_classification/MAREoS/results_SVM_MAREoS.csv")   # noqa
+results = pd.read_csv("/home/nnieto/Nico/Harmonization/results_classification/MAREoS/results_SVM_MAREoS_complete.csv")   # noqa
 for exp in results["Name"].unique():
     results_harmonize = results[results["Method"] == "JuHarmonize"]
     results_noharmonize = results[results["Method"] == "No Harmonize"]
@@ -222,5 +246,74 @@ for exp in results["Name"].unique():
     print(results_noharmonize[results_noharmonize["Name"] == exp]["bACC"].mean())                       # noqa
     print("RAC")
     print((BAC_Without_Mareos-BAC) / (BAC_Without_Mareos - 50) * 100)
+
+# %%
+
+
+def calculate_percentage(labels, sites):
+    unique_sites = np.unique(sites)
+
+    for site in unique_sites:
+        site_mask = (sites == site)
+        total_labels = np.sum(site_mask)
+        positive_labels = np.sum(labels[site_mask])
+
+        percentage_of_total_labels = (positive_labels / len(labels)) * 100
+        percentage_of_total_site = (positive_labels / total_labels) * 100 if total_labels > 0 else 0
+
+        print(f"Site {site}:")
+        print(f"  Total Labels: {total_labels}")
+        print(f"  Positive Labels: {positive_labels}")
+        print(f"  Percentage of Total Labels: {percentage_of_total_labels:.2f}%")
+        print(f"  Percentage of Total Site: {percentage_of_total_site:.2f}%")
+        print()
+
+# Example usage:
+# y = np.array([1, 0, 1, 1, 0, 1, 0, 0, 1, 1])
+# site = np.array(['A', 'B', 'A', 'A', 'B', 'C', 'A', 'C', 'B', 'C'])
+
+calculate_percentage(y, site_train)
+
+# %%
+import numpy as np
+
+def calculate_percentage(labels, sites):
+    unique_sites = np.unique(sites)
+
+    for site in unique_sites:
+        site_mask = (sites == site)
+        total_labels = np.sum(site_mask)
+        positive_labels = np.sum(labels[site_mask])
+
+        percentage_of_total_labels = (positive_labels / len(labels)) * 100
+        percentage_of_total_site = (positive_labels / total_labels) * 100 if total_labels > 0 else 0
+
+        print(f"Site {site}:")
+        print(f"  Total Labels: {total_labels}")
+        print(f"  Positive Labels: {positive_labels}")
+        print(f"  Percentage of Total Labels: {percentage_of_total_labels:.2f}%")
+        print(f"  Percentage of Total Site: {percentage_of_total_site:.2f}%")
+        print()
+
+def filter_data_by_sites(labels, sites, target_sites):
+    site_mask = np.isin(sites, target_sites)
+    filtered_labels = labels[site_mask]
+    filtered_sites = sites[site_mask]
+
+    return filtered_labels, filtered_sites
+
+# Example usage:
+y = np.array([1, 0, 1, 1, 0, 1, 0, 0, 1, 1])
+site = np.array(['site1', 'site2', 'site1', 'site1', 'site2', 'site3', 'site1', 'site3', 'site2', 'site3'])
+
+calculate_percentage(y, site)
+
+# Example of filtering data for 'site1' and 'site3':
+filtered_y, filtered_site = filter_data_by_sites(y, site, target_sites)
+print("\nFiltered Data for 'site1' and 'site3':")
+print("Labels:", filtered_y)
+print("Sites:", filtered_site)
+
+
 
 # %%
