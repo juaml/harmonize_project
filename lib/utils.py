@@ -302,11 +302,11 @@ def plot_grup_barplot(data, exlude_notarget=True, absolute_error=True,
     return
 
 
-def extract_experiment_data(exp_dir, exp_name, train_acc=False):
+def extract_experiment_data(exp_dir, exp_name, train=False):
     for experiment in exp_name:
         in_path = Path(exp_dir) / experiment
         all_dfs = []
-        if train_acc:
+        if train:
             files = '*train.csv'
 
         else:
@@ -320,11 +320,11 @@ def extract_experiment_data(exp_dir, exp_name, train_acc=False):
     return results_df
 
 
-def extract_experiment_data_oos(exp_dir, exp_name, train_acc=False):
+def extract_experiment_data_oos(exp_dir, exp_name, train=False):
     for experiment in exp_name:
         in_path = Path(exp_dir) / experiment
         all_dfs = []
-        if train_acc:
+        if train:
             files = '*train.csv'
 
         else:

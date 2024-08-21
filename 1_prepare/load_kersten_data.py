@@ -4,10 +4,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Load data
-root_dir = "/home/nnieto/Nico/Harmonization/Kersten_data/"
+root_dir = "/home/nnieto/Nico/Harmonization/data/Kersten_data/"
 save_dir = "/home/nnieto/Nico/Harmonization/ADNI/Kersten_data_min30/final_data_split/"
 data = pd.read_csv(root_dir + "adni-aibl_dataset.csv")
-
 # filter sites with few images
 
 # Keep only images adquired with 3T
