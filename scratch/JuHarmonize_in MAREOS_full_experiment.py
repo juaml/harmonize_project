@@ -28,10 +28,12 @@ if clf_name == "LASSO":
                                n_jobs=-1, random_state=random_state)
 elif clf_name == "SVM":
     clf = SVC(probability=True, random_state=random_state)
-elif clf_name == "RF":
 
+elif clf_name == "RF":
     clf = RandomForestClassifier(n_jobs=-1, random_state=random_state)
+    
 elif clf_name == "GP":
+
     clf = GaussianProcessClassifier(n_jobs=-1, random_state=random_state)
 
 JuHarmonize_model = JuHarmonizeClassifier(pred_model=clf,
@@ -45,8 +47,9 @@ cheat_results = []
 leakage_results = []
 notarget_results = []
 
-target_sites = ['site1', 'site8']
-
+target_sites = ['site1', 'site2', 'site3', 'site4',
+                'site5', 'site6', 'site7', 'site8']
+# %%
 for effect in effects:
     for e_types in effect_types:
         for e_example in effect_examples:
@@ -170,7 +173,7 @@ for effect in effects:
                 Juharmonize_results.append([balanced_accuracy_score(y_true=y_test,                                                                          # noqa
                                                              y_pred=y_pred), fold, effect, e_types, e_example, example])                                    # noqa
 
-
+# %%
 # Save results
 results_none = pd.DataFrame(data=simple_results,
                             columns=['bACC', "Fold", "Effect",
@@ -201,7 +204,7 @@ results = pd.concat([results_none, results_Juharmonize,
                      results_cheat, results_leakage,
                      results_notarget])
 
-# results.to_csv(save_dir+"results_"+clf_name+"_MAREoS_complete.csv")
+results.to_csv(save_dir+"results_pred_model_"+clf_name+"_LG_stack_MAREoS_complete.csv")
 
 # %% Plotting resuts
 
@@ -209,6 +212,8 @@ results = pd.concat([results_none, results_Juharmonize,
 fig, ax = plt.subplots(1, 1, figsize=[20, 15])
 
 harm_methods = ["JuHarmonize", "Cheat", "Leakage", "No Target", "None"]
+harm_methods = ["JuHarmonize", "None"]
+
 pal = sbn.cubehelix_palette(len(harm_methods), rot=-.5, light=0.5, dark=0.2)
 
 sbn.swarmplot(
@@ -233,10 +238,10 @@ plt.grid(axis="y")
 plt.show()
 # %%
 
-results = pd.read_csv("/home/nnieto/Nico/Harmonization/results_classification/MAREoS/results_SVM_MAREoS_complete.csv")   # noqa
+# results = pd.read_csv("/home/nnieto/Nico/Harmonization/results_classification/MAREoS/results_SVM_MAREoS_complete.csv")   # noqa
 for exp in results["Name"].unique():
     results_harmonize = results[results["Method"] == "JuHarmonize"]
-    results_noharmonize = results[results["Method"] == "No Harmonize"]
+    results_noharmonize = results[results["Method"] == "None"]
 
     print(exp)
     BAC_Without_Mareos = results_noharmonize[results_noharmonize["Name"] == exp]["bACC"].mean() * 100   # noqa
