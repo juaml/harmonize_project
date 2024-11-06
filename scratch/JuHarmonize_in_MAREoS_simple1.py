@@ -8,7 +8,7 @@ root_dir = "/home/nnieto/Nico/Harmonization/data/MAREoS/public_datasets/"
 example = "eos_simple1"
 data = pd.read_csv(root_dir+example+"_data.csv", index_col=0)
 target = pd.read_csv(root_dir+example+"_response.csv", index_col=0)
-
+# %%
 sites = data["site"]
 folds = data["folds"]
 clf = LogisticRegression()
@@ -42,3 +42,11 @@ print("JuHarmonize bACC: " + str(np.array(harm_results).mean()))     # noqa
 print("Logit clf bACC: " + str(np.array(simple_results).mean()))
 
 # %%
+
+# %%
+
+import seaborn as sbn
+data["response"] = target["response"]
+
+sbn.countplot(data=data, x="site", hue="response")
+

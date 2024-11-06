@@ -3,7 +3,7 @@ import pandas as pd
 from juharmonize import JuHarmonizeRegressor
 from neuroHarmonize import harmonizationLearn, harmonizationApply
 from sklearn.model_selection import RepeatedKFold
-
+import numpy as np
 from skrvm import RVR
 import sys
 from pathlib import Path
@@ -11,31 +11,24 @@ dir_path = '../lib/'
 __file__ = dir_path + "data_processing.py"
 to_append = Path(__file__).resolve().parent.parent.as_posix()
 sys.path.append(to_append)
-from lib.data_processing import compute_classification_results, balance_gender
-from lib.data_processing import load_balanced_dataset, retain_images
+from lib.data_processing import compute_classification_results
+from lib.data_processing import load_qc_dataset
 
 # %%
+save_dir = "/home/nnieto/Nico/Harmonization/harmonize_project/scratch/output/qc/"   # noqa
+data_dir = "/home/nnieto/Nico/Harmonization/data/qc/final_data_split/"
 
+qc_sampling = "random"
 
-data_dir = "/home/nnieto/Nico/Harmonization/data/balanced/final_data_split/"
-
-X_SALD, Y_SALD = load_balanced_dataset("SALD", data_dir)
-X_eNKI, Y_eNKI = load_balanced_dataset("eNKI", data_dir)
-X_Camcan, Y_Camcan = load_balanced_dataset("CamCAN", data_dir)
-
-min_images = 59
-
-Y_SALD = balance_gender(Y_SALD, min_images)
-Y_eNKI = balance_gender(Y_eNKI, min_images)
-Y_Camcan = balance_gender(Y_Camcan, min_images)
+X_SALD, Y_SALD = load_qc_dataset("SALD", qc_sampling, data_dir)
+X_eNKI, Y_eNKI = load_qc_dataset("eNKI", qc_sampling, data_dir)
+X_Camcan, Y_Camcan = load_qc_dataset("CamCAN", qc_sampling, data_dir)
 
 Y = pd.concat([Y_SALD, Y_eNKI, Y_Camcan])
 
-X = pd.concat([retain_images(X_SALD, Y_SALD),
-               retain_images(X_eNKI, Y_eNKI),
-               retain_images(X_Camcan, Y_Camcan)])
-
+X = pd.concat([X_SALD, X_eNKI, X_Camcan])
 X.dropna(axis=1, inplace=True)
+
 # %%
 
 Y["site"].replace({"SALD": 0, "eNKI": 1,
@@ -43,7 +36,7 @@ Y["site"].replace({"SALD": 0, "eNKI": 1,
 sites = Y["site"].reset_index()
 Y["gender"].replace({"F": 0, "M": 1}, inplace=True)
 
-Y = Y["age"].to_numpy()
+Y = Y["age"].to_numpy().astype(int)
 X = X.to_numpy()
 
 # %%
@@ -78,7 +71,6 @@ pred_notarget = []
 pred_leak = []
 pred_juharmonize = []
 
-save_dir = "/home/nnieto/Nico/Harmonization/harmonize_project/scratch/output/"
 # %%
 for i_fold, (train_index, test_index) in enumerate(kf_out.split(X=X)):       # noqa
     print("FOLD: " + str(i_fold))
@@ -100,12 +92,14 @@ for i_fold, (train_index, test_index) in enumerate(kf_out.split(X=X)):       # n
 
     # Models
     # None model
+    print("None")
     clf = RVR(kernel="poly", degree=1)
 
     clf.fit(X_train, Y_train)
     pred_test = clf.predict(X_test)
     results = compute_classification_results(i_fold, "None Test", pred_test, Y_test, results)                 # noqa
     pred_none.append(pred_test)
+    print("Cheat")
 
     # Cheat
     clf = RVR(kernel="poly", degree=1)
@@ -115,6 +109,7 @@ for i_fold, (train_index, test_index) in enumerate(kf_out.split(X=X)):       # n
     results = compute_classification_results(i_fold, "Cheat Test", pred_test, Y_test, results)                 # noqa
     pred_cheat.append(pred_test)
 
+    print("Leakage")
     # # Leakage
     clf = RVR(kernel="poly", degree=1)
 
@@ -138,6 +133,8 @@ for i_fold, (train_index, test_index) in enumerate(kf_out.split(X=X)):       # n
     results = compute_classification_results(i_fold, "Leakage Test", pred_test, Y_test, results)                       # noqa
     pred_leak.append(pred_test)
 
+    print("No Target")
+
     # No Target
     clf = RVR(kernel="poly", degree=1)
 
@@ -159,6 +156,7 @@ for i_fold, (train_index, test_index) in enumerate(kf_out.split(X=X)):       # n
     results = compute_classification_results(i_fold, "No Target Test", pred_test, Y_test, results)                     # noqa
     pred_notarget.append(pred_test)
 
+    print("JuHarmonize")
     # # JuHarmonize
     JuHarmonize_model.fit(X=X_train, y=Y_train,
                           sites=site_train["site"].to_numpy())
@@ -169,16 +167,16 @@ for i_fold, (train_index, test_index) in enumerate(kf_out.split(X=X)):       # n
 
 # %%
 print("Saving")
-pd.DataFrame(y_true_loop).to_csv(save_dir+"y_true.csv")
-pd.DataFrame(sites_loop).to_csv(save_dir+"sites.csv")
+pd.DataFrame(y_true_loop).to_csv(save_dir+qc_sampling+"_y_true.csv")
+pd.DataFrame(sites_loop).to_csv(save_dir+qc_sampling+"_sites.csv")
 
-pd.DataFrame(pred_none).to_csv(save_dir+"y_pred_none.csv")
-pd.DataFrame(pred_cheat).to_csv(save_dir+"y_pred_cheat.csv")
-pd.DataFrame(pred_notarget).to_csv(save_dir+"y_pred_notarget.csv")
-pd.DataFrame(pred_leak).to_csv(save_dir+"y_pred_leak.csv")
-pd.DataFrame(pred_juharmonize).to_csv(save_dir+"y_pred_juharmonize.csv")
+pd.DataFrame(pred_none).to_csv(save_dir+qc_sampling+"_y_pred_none.csv")
+pd.DataFrame(pred_cheat).to_csv(save_dir+qc_sampling+"_y_pred_cheat.csv")
+pd.DataFrame(pred_notarget).to_csv(save_dir+qc_sampling+"_y_pred_notarget.csv")
+pd.DataFrame(pred_leak).to_csv(save_dir+qc_sampling+"_y_pred_leak.csv")
+pd.DataFrame(pred_juharmonize).to_csv(save_dir+qc_sampling+"_y_pred_juharmonize.csv")           # noqa
 
 pd.DataFrame(results, columns=["Fold", "Harmonization Scheme", "MAE", "R2",
                                "Age bias"]
-             ).to_csv(save_dir+"results/results_age_regression_dependant.csv")       # noqa
+             ).to_csv(save_dir+"results_age_regression_dependant_"+qc_sampling+".csv")       # noqa
 # %%
