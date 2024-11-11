@@ -30,8 +30,8 @@ MANIFEST
 # folder
 mni_icbm152_lin_nifti           
 MAREoS
-scratch
-QC
+scratch/
+QC/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
