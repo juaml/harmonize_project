@@ -1,13 +1,11 @@
 # %%
 import pandas as pd
-import numpy as np
 from sklearn.linear_model import LogisticRegression
-from juharmonize import JuHarmonizeClassifier
+from prettyharmonize import PrettYharmonizeClassifier
 from neuroHarmonize import harmonizationLearn, harmonizationApply
 from sklearn.model_selection import RepeatedStratifiedKFold
+from lib.data_processing import compute_classification_results
 
-
-from typing import List, Union
 
 root_dir = "/home/nnieto/Nico/Harmonization/data/final_data_split/"
 
@@ -33,8 +31,8 @@ target["gender"].replace({"F": 0, "M": 1}, inplace=True)
 Y = target["gender"]
 
 clf = LogisticRegression()
-JuHarmonize_model = JuHarmonizeClassifier(stack_model="logit",
-                                          pred_model="logit")
+Pretty_harmonize_model = PrettYharmonizeClassifier(stack_model="logit",
+                                                   pred_model="logit")
 
 print("Number of sites: " + str(sites.nunique()))
 print("Number of classes: " + str(Y.value_counts()))
@@ -47,18 +45,12 @@ kf_out = RepeatedStratifiedKFold(n_splits=5,
 
 covars = pd.DataFrame(sites["site"].to_numpy(), columns=['SITE'])
 
-
-harm_cheat, data_cheat_no_target = harmonizationLearn(data=X, # noqa
-                                                      covars=covars)
-
 covars['Target'] = Y.to_numpy().ravel()
 
 harm_cheat, data_cheat = harmonizationLearn(data=X, # noqa
                                             covars=covars)
 data_cheat = pd.DataFrame(data_cheat)
 Y = Y.to_numpy()
-
-
 
 # %%
 for i_fold, (train_index, test_index) in enumerate(kf_out.split(X=X, y=Y)):       # noqa
@@ -67,7 +59,6 @@ for i_fold, (train_index, test_index) in enumerate(kf_out.split(X=X, y=Y)):     
     # Patients used for train and internal XGB validation
     X_train = X[train_index, :]
     X_cheat_train = data_cheat.iloc[train_index, :]
-    X_cheat_no_target_train = data_cheat_no_target[train_index, :]
 
     site_train = sites.iloc[train_index, :]
     Y_train = Y[train_index]
@@ -75,7 +66,6 @@ for i_fold, (train_index, test_index) in enumerate(kf_out.split(X=X, y=Y)):     
     # Patients used to generete a prediction
     X_test = X[test_index, :]
     X_cheat_test = data_cheat.iloc[test_index, :]
-    X_cheat_no_target_test = data_cheat_no_target[test_index, :]
 
     site_test = sites.iloc[test_index, :]
 
@@ -84,29 +74,20 @@ for i_fold, (train_index, test_index) in enumerate(kf_out.split(X=X, y=Y)):     
     # None model
     clf.fit(X_train, Y_train)
     pred_test = clf.predict_proba(X_test)[:, 1]
-    results = compute_results(i_fold, "None Test", pred_test, Y_test, results)                 # noqa
+    results = compute_classification_results(i_fold, "None Test", pred_test, Y_test, results)                 # noqa
 
     pred_train = clf.predict_proba(X_train)[:, 1]
-    results = compute_results(i_fold, "None Train", pred_train, Y_train, results)                 # noqa
+    results = compute_classification_results(i_fold, "None Train", pred_train, Y_train, results)                 # noqa
 
     # Cheat
     clf.fit(X_cheat_train, Y_train)
     pred_test = clf.predict_proba(X_cheat_test)[:, 1]
-    results = compute_results(i_fold, "Cheat Test", pred_test, Y_test, results)                 # noqa
+    results = compute_classification_results(i_fold, "WDH Test", pred_test, Y_test, results)                 # noqa
 
     pred_train = clf.predict_proba(X_cheat_train)[:, 1]
-    results = compute_results(i_fold, "Cheat Train", pred_train, Y_train, results)                 # noqa
+    results = compute_classification_results(i_fold, "WDH Train", pred_train, Y_train, results)                 # noqa
 
-    # Cheat no target
-    clf.fit(X_cheat_no_target_train, Y_train)
-    pred_test = clf.predict_proba(X_cheat_no_target_test)[:, 1]
-    results = compute_results(i_fold, "Cheat No Target Test", pred_test, Y_test, results)                 # noqa
-
-    pred_train = clf.predict_proba(X_cheat_no_target_train)[:, 1]
-    results = compute_results(i_fold, "Cheat No Target Train", pred_train, Y_train, results)                 # noqa
-
-
-    # # Leakage
+    # Leakage
     covars_train = pd.DataFrame(site_train["site"].to_numpy(),
                                 columns=['SITE'])
     covars_train['Target'] = Y_train.ravel()
@@ -124,10 +105,10 @@ for i_fold, (train_index, test_index) in enumerate(kf_out.split(X=X, y=Y)):     
                                         harm_model)
 
     pred_test = clf.predict_proba(harm_data_test)[:, 1]
-    results = compute_results(i_fold, "Leakage Test", pred_test, Y_test, results)                 # noqa
+    results = compute_classification_results(i_fold, "Leakage Test", pred_test, Y_test, results)                 # noqa
 
     pred_train = clf.predict_proba(harm_data)[:, 1]
-    results = compute_results(i_fold, "Leakage Train", pred_train, Y_train, results)                 # noqa
+    results = compute_classification_results(i_fold, "Leakage Train", pred_train, Y_train, results)                 # noqa
 
     # No Target
     covars_train = pd.DataFrame(site_train["site"].to_numpy(),
@@ -144,71 +125,40 @@ for i_fold, (train_index, test_index) in enumerate(kf_out.split(X=X, y=Y)):     
                                         harm_model)
 
     pred_test = clf.predict_proba(harm_data_test)[:, 1]
-    results = compute_results(i_fold, "No Target Test", pred_test, Y_test, results)                 # noqa
+    results = compute_classification_results(i_fold, "No Target Test", pred_test, Y_test, results)                 # noqa
 
     pred_train = clf.predict_proba(harm_data)[:, 1]
-    results = compute_results(i_fold, "No Target Train", pred_train, Y_train, results)                 # noqa
+    results = compute_classification_results(i_fold, "No Target Train", pred_train, Y_train, results)                 # noqa
 
-    # # JuHarmonize
-    JuHarmonize_model.fit(X=X_train, y=Y_train,
-                          sites=site_train["site"].to_numpy())
-    pred_test = JuHarmonize_model.predict_proba(X_test,
+    # # Pretty harmonize
+    Pretty_harmonize_model.fit(X=X_train, y=Y_train,
+                               sites=site_train["site"].to_numpy())
+    pred_test = Pretty_harmonize_model.predict_proba(X_test,
                                                 sites=site_test["site"].to_numpy())[:, 1]           # noqa
-    results = compute_results(i_fold, "JuHarmonize Test", pred_test, Y_test, results)                 # noqa
+    results = compute_classification_results(i_fold, "JuHarmonize Test", pred_test, Y_test, results)                 # noqa
 
-    pred_train = JuHarmonize_model.predict_proba(X_train,
+    pred_train = Pretty_harmonize_model.predict_proba(X_train,
                                                  sites=site_train["site"].to_numpy())[:, 1]         # noqa
-    results = compute_results(i_fold, "JuHarmonize Train", pred_train, Y_train, results)                 # noqa
+    results = compute_classification_results(i_fold, "JuHarmonize Train", pred_train, Y_train, results)                 # noqa
 
 
 # %%
-def results_to_df(result: List[List[Union[int, str, float]]]) -> pd.DataFrame:
-    """
-    Convert the list of results to a DataFrame.
-
-    Parameters:
-        result (List[List[Union[int, str, float]]]): List containing results.
-
-    Returns:
-        pd.DataFrame: DataFrame containing results with labeled columns.
-    """
-    result_df = pd.DataFrame(result,
-                             columns=["Fold",
-                                      "Model",
-                                      "Random State",
-                                      "Random Permutation Number",
-                                      "Thresholds",
-                                      "Number of Removed Features",
-                                      "Balanced ACC",
-                                      "AUC",
-                                      "F1",
-                                      "Recall",
-                                      ])
-    return result_df
 
 
-results = results_to_df(results)
+results = pd.DataFrame(results,
+                       columns=["Fold",
+                                "Model",
+                                "Random State",
+                                "Random Permutation Number",
+                                "Thresholds",
+                                "Number of Removed Features",
+                                "Balanced ACC",
+                                "AUC",
+                                "F1",
+                                "Recall",
+                                ])
+
+
+
 # %%
 results.to_csv("/home/nnieto/Nico/Harmonization/harmonize_project/scratch/output/results/sex_classification/results_JuHarmonize.csv")   # noqa
-# %%
-import seaborn as sbn
-data = results
-# site_order = ["Global", "eNKI", "CamCAN"]
-metric_to_plot = "Balanced ACC"
-import matplotlib.pyplot as plt
-# Plot
-pal = sbn.cubehelix_palette(5, rot=-.5, light=0.5, dark=0.2)
-_, ax = plt.subplots(1, 1, figsize=[12, 7])
-
-
-sbn.boxplot(
-    data=data, zorder=1,
-    x="Model", y=metric_to_plot, hue="Model",
- dodge=False, ax=ax
-)
-
-plt.ylabel(metric_to_plot)
-plt.xlabel("Sites")
-plt.title("Gender Classification")
-plt.grid(alpha=0.5, axis="y", c="black")
-plt.show()

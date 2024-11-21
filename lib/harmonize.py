@@ -6,18 +6,18 @@ from sklearn.metrics import (
     r2_score,
 )
 
-from juharmonize import (
-    JuHarmonize,
-    JuHarmonizeRegressor,
-    JuHarmonizeClassifier,
-    JuHarmonizePredictor,
-    JuHarmonizePredictorCV,
+from prettyharmonize import (
+    PreattyHarmonize,
+    PreattyHarmonizeRegressor,
+    PreattyHarmonizeClassifier,
+    PreattyHarmonizePredictor,
+    PreattyHarmonizePredictorCV,
 )
 
 from .logging import logger
 
 
-def get_JuHarmonizeModel(
+def get_PreattyHarmonize_model(
     problem_type,
     pred_model,
     stack_model,
@@ -29,14 +29,14 @@ def get_JuHarmonizeModel(
     predict_ignore_site=False,
 ):
     if problem_type == "binary_classification":
-        logger.info("Using JuHarmonizeClassifier")
+        logger.info("Using PreattyHarmonizeClassifier")
         logger.info(f"\tpred_model: {pred_model}")
         logger.info(f"\tstack_model: {stack_model}")
         logger.info(f"\tn_splits: {n_splits}")
         logger.info(f"\trandom_state: {random_state}")
         logger.info(f"\tpredict_ignore_site: {predict_ignore_site}")
         logger.info("\tuse_cv_test_transforms: True")
-        model = JuHarmonizeClassifier(
+        model = PreattyHarmonizeClassifier(
             pred_model=pred_model,
             n_splits=n_splits,
             stack_model=stack_model,
@@ -45,7 +45,7 @@ def get_JuHarmonizeModel(
             predict_ignore_site=predict_ignore_site,
         )
     else:
-        logger.info("Using JuHarmonizeRegressor")
+        logger.info("Using PreattyHarmonizeRegressor")
         logger.info(f"\tpred_model: {pred_model}")
         logger.info(f"\tstack_model: {stack_model}")
         logger.info(f"\tn_splits: {n_splits}")
@@ -55,7 +55,7 @@ def get_JuHarmonizeModel(
         logger.info(f"\tpredict_ignore_site: {predict_ignore_site}")
         logger.info("\tuse_cv_test_transforms: True")
         logger.info(f"\trandom_state: {random_state}")
-        model = JuHarmonizeRegressor(
+        model = PreattyHarmonizeRegressor(
             pred_model=pred_model,
             n_splits=n_splits,
             regression_points=regression_points,
@@ -101,24 +101,24 @@ def train_harmonizer(
         logger.info("Fit done")
     elif harm_type in ["target"]:
         # harmonize train and then apply to test but using labels
-        out["harm_model"] = JuHarmonize()
-        logger.info("JuHarmonize fit_transform")
+        out["harm_model"] = PreattyHarmonize()
+        logger.info("PreattyHarmonize fit_transform")
         X_harm = out["harm_model"].fit_transform(X, y, sites, covars)
         logger.info("Predictive model fit")
         out["pred_model"].fit(X_harm, y)
         logger.info("Fit done")
     elif harm_type == "notarget":
-        out["harm_model"] = JuHarmonize(preserve_target=False)
-        logger.info("JuHarmonize fit_transform")
+        out["harm_model"] = PreattyHarmonize(preserve_target=False)
+        logger.info("PreattyHarmonize fit_transform")
         X_harm = out["harm_model"].fit_transform(X, y, sites, covars)
         logger.info("Predictive model fit")
         out["pred_model"].fit(X_harm, y)
         logger.info("Fit done")
     elif harm_type == "predict":
         rf_model = RandomForestRegressor(n_jobs=n_jobs)
-        out["harm_model"] = JuHarmonizePredictor(use_disk=use_disk,
+        out["harm_model"] = PreattyHarmonizePredictor(use_disk=use_disk,
                                                  model=rf_model)
-        logger.info("JuHarmonizePredictor fit_transform")
+        logger.info("PreattyHarmonizePredictor fit_transform")
         X_harm = out["harm_model"].fit_transform(X, y, sites, covars)
         logger.info("Predictive model fit")
         out["pred_model"].fit(X_harm, y)
@@ -126,7 +126,7 @@ def train_harmonizer(
     elif harm_type in ["pretend", "pretend_nosite"]:
         assert stack_model is not None
         predict_ignore_site = harm_type == "pretend_nosite"
-        out["pred_model"] = get_JuHarmonizeModel(
+        out["pred_model"] = get_PreattyHarmonize_model(
             problem_type,
             pred_model,
             stack_model,
@@ -135,13 +135,13 @@ def train_harmonizer(
             n_splits=n_splits,
             **regression_params,
         )
-        logger.info("JuHarmonizeClassifier/Regressor fit")
+        logger.info("PreattyHarmonizeClassifier/Regressor fit")
         out["pred_model"].fit(X, y, sites, covars)
         logger.info("Fit done")
     elif harm_type in ["predict_pretend", "predict_pretend_nosite"]:
         assert stack_model is not None
         predict_ignore_site = harm_type == "predict_pretend_nosite"
-        out["pred_model"] = get_JuHarmonizeModel(
+        out["pred_model"] = get_PreattyHarmonize_model(
             problem_type,
             pred_model,
             stack_model,
@@ -154,12 +154,12 @@ def train_harmonizer(
             "use_disk": use_disk,
             "model": RandomForestRegressor(n_jobs=n_jobs),
         }
-        out["harm_model"] = JuHarmonizePredictorCV(
+        out["harm_model"] = PreattyHarmonizePredictorCV(
             predictor_params=predictor_params
         )
-        logger.info("JuHarmonizePredictorCV fit_transform")
+        logger.info("PreattyHarmonizePredictorCV fit_transform")
         X_harm = out["harm_model"].fit_transform(X, y, sites, covars)
-        logger.info("JuHarmonizeClassifier/Regressor fit")
+        logger.info("PreattyHarmonizeClassifier/Regressor fit")
         out["pred_model"].fit(X_harm, y, sites, covars)
         logger.info("Fit done")
     else:
