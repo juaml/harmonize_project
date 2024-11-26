@@ -1,35 +1,19 @@
 # %%
 import pandas as pd
+import os
+import sys
 from sklearn.linear_model import LogisticRegression
 from prettyharmonize import PrettYharmonizeClassifier
 from neuroHarmonize import harmonizationLearn, harmonizationApply
 from sklearn.model_selection import RepeatedStratifiedKFold
-from lib.data_processing import compute_classification_results
+project_root = os.path.dirname((os.path.dirname(os.path.abspath(__file__))))             # noqa
+sys.path.append(project_root)
+from lib.data_processing import compute_classification_results      # noqa
+from lib.data_loading import load_MRI_umbalanced_data               # noqa      
 
-
-root_dir = "/home/nnieto/Nico/Harmonization/data/final_data_split/"
-
-data_enki = pd.read_csv(root_dir+"X_eNKI_gender_imbalance_extreme.csv")
-data_CamCAN = pd.read_csv(root_dir+"X_CamCAN_gender_imbalance_extreme.csv")
-
-y_enki = pd.read_csv(root_dir+"Y_eNKI_gender_imbalance_extreme.csv")
-y_enki["site"] = "eNKI"
-y_CamCAN = pd.read_csv(root_dir+"Y_CamCAN_gender_imbalance_extreme.csv")
-y_CamCAN["site"] = "CamCAN"
-
-# %%
-
-X = pd.concat([data_CamCAN, data_enki])
-X.dropna(axis=1, inplace=True)
-X = X.to_numpy()
-target = pd.concat([y_CamCAN, y_enki])
-# %%
-target["site"].replace({"eNKI": 0, "CamCAN": 1}, inplace=True)
-sites = target["site"].reset_index()
-target["gender"].replace({"F": 0, "M": 1}, inplace=True)
-
-Y = target["gender"]
-
+data_dir = "/data/final_data_split/"
+save_dir = project_root + "output/sex_classification/"
+X, Y, sites = load_MRI_umbalanced_data(data_dir)
 clf = LogisticRegression()
 Pretty_harmonize_model = PrettYharmonizeClassifier(stack_model="logit",
                                                    pred_model="logit")
@@ -44,12 +28,12 @@ kf_out = RepeatedStratifiedKFold(n_splits=5,
                                  random_state=23)
 
 covars = pd.DataFrame(sites["site"].to_numpy(), columns=['SITE'])
-
+# set the sex as covariat
 covars['Target'] = Y.to_numpy().ravel()
-
-harm_cheat, data_cheat = harmonizationLearn(data=X, # noqa
-                                            covars=covars)
-data_cheat = pd.DataFrame(data_cheat)
+# harmonize the whole dataset
+harm_WDH, data_WDH = harmonizationLearn(data=X, # noqa
+                                        covars=covars)
+data_WDH = pd.DataFrame(data_WDH)
 Y = Y.to_numpy()
 
 # %%
@@ -58,14 +42,14 @@ for i_fold, (train_index, test_index) in enumerate(kf_out.split(X=X, y=Y)):     
 
     # Patients used for train and internal XGB validation
     X_train = X[train_index, :]
-    X_cheat_train = data_cheat.iloc[train_index, :]
+    X_WDH_train = data_WDH.iloc[train_index, :]
 
     site_train = sites.iloc[train_index, :]
     Y_train = Y[train_index]
 
     # Patients used to generete a prediction
     X_test = X[test_index, :]
-    X_cheat_test = data_cheat.iloc[test_index, :]
+    X_WDH_test = data_WDH.iloc[test_index, :]
 
     site_test = sites.iloc[test_index, :]
 
@@ -74,20 +58,20 @@ for i_fold, (train_index, test_index) in enumerate(kf_out.split(X=X, y=Y)):     
     # None model
     clf.fit(X_train, Y_train)
     pred_test = clf.predict_proba(X_test)[:, 1]
-    results = compute_classification_results(i_fold, "None Test", pred_test, Y_test, results)                 # noqa
+    results = compute_classification_results(i_fold, "Unharmonize Test", pred_test, Y_test, results)                 # noqa
 
     pred_train = clf.predict_proba(X_train)[:, 1]
-    results = compute_classification_results(i_fold, "None Train", pred_train, Y_train, results)                 # noqa
+    results = compute_classification_results(i_fold, "Unharmonize Train", pred_train, Y_train, results)                 # noqa
 
-    # Cheat
-    clf.fit(X_cheat_train, Y_train)
-    pred_test = clf.predict_proba(X_cheat_test)[:, 1]
+    # WDH
+    clf.fit(X_WDH_train, Y_train)
+    pred_test = clf.predict_proba(X_WDH_test)[:, 1]
     results = compute_classification_results(i_fold, "WDH Test", pred_test, Y_test, results)                 # noqa
 
-    pred_train = clf.predict_proba(X_cheat_train)[:, 1]
+    pred_train = clf.predict_proba(X_WDH_train)[:, 1]
     results = compute_classification_results(i_fold, "WDH Train", pred_train, Y_train, results)                 # noqa
 
-    # Leakage
+    # TTL
     covars_train = pd.DataFrame(site_train["site"].to_numpy(),
                                 columns=['SITE'])
     covars_train['Target'] = Y_train.ravel()
@@ -105,10 +89,10 @@ for i_fold, (train_index, test_index) in enumerate(kf_out.split(X=X, y=Y)):     
                                         harm_model)
 
     pred_test = clf.predict_proba(harm_data_test)[:, 1]
-    results = compute_classification_results(i_fold, "Leakage Test", pred_test, Y_test, results)                 # noqa
+    results = compute_classification_results(i_fold, "TTL Test", pred_test, Y_test, results)                 # noqa
 
     pred_train = clf.predict_proba(harm_data)[:, 1]
-    results = compute_classification_results(i_fold, "Leakage Train", pred_train, Y_train, results)                 # noqa
+    results = compute_classification_results(i_fold, "TTL Train", pred_train, Y_train, results)                 # noqa
 
     # No Target
     covars_train = pd.DataFrame(site_train["site"].to_numpy(),
@@ -142,23 +126,14 @@ for i_fold, (train_index, test_index) in enumerate(kf_out.split(X=X, y=Y)):     
     results = compute_classification_results(i_fold, "JuHarmonize Train", pred_train, Y_train, results)                 # noqa
 
 
-# %%
-
-
 results = pd.DataFrame(results,
                        columns=["Fold",
                                 "Model",
-                                "Random State",
-                                "Random Permutation Number",
-                                "Thresholds",
-                                "Number of Removed Features",
                                 "Balanced ACC",
                                 "AUC",
                                 "F1",
                                 "Recall",
                                 ])
 
-
-
 # %%
-results.to_csv("/home/nnieto/Nico/Harmonization/harmonize_project/scratch/output/results/sex_classification/results_JuHarmonize.csv")   # noqa
+results.to_csv(save_dir+ "results_sex_classification_site_target_dependance.csv")   # noqa

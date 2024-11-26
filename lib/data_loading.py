@@ -67,22 +67,18 @@ def load_crop_dataset(name, data_dir):
     return X, Y
 
 
-def load_sex_age_balanced_data(data_dir, min_images=59):
+def load_sex_age_balanced_data(data_dir):
     X_SALD, Y_SALD = load_balanced_dataset("SALD", data_dir)
     X_eNKI, Y_eNKI = load_balanced_dataset("eNKI", data_dir)
     X_Camcan, Y_Camcan = load_balanced_dataset("CamCAN", data_dir)
 
-    min_images = 59
-
-    Y_SALD = balance_gender(Y_SALD, min_images)
-    Y_eNKI = balance_gender(Y_eNKI, min_images)
-    Y_Camcan = balance_gender(Y_Camcan, min_images)
+    # Y_SALD = balance_gender(Y_SALD, min_images)
+    # Y_eNKI = balance_gender(Y_eNKI, min_images)
+    # Y_Camcan = balance_gender(Y_Camcan, min_images)
 
     Y = pd.concat([Y_SALD, Y_eNKI, Y_Camcan])
 
-    X = pd.concat([retain_images(X_SALD, Y_SALD),
-                   retain_images(X_eNKI, Y_eNKI),
-                   retain_images(X_Camcan, Y_Camcan)])
+    X = pd.concat([X_SALD, X_eNKI, X_Camcan])
 
     X.dropna(axis=1, inplace=True)
     Y["site"].replace({"SALD": 0, "eNKI": 1,
@@ -106,17 +102,17 @@ def load_balanced_dataset(name, data_dir):
     return X, Y
 
 
-def load_sex_age_imbalanced_data(data_dir):
+def load_sex_age_imbalanced_data(data_dir, min_images):
 
     X_ID1000, Y_ID1000 = load_crop_dataset("ID1000", data_dir)
     X_eNKI, Y_eNKI = load_crop_dataset("eNKI", data_dir)
     X_Camcan, Y_Camcan = load_crop_dataset("CamCAN", data_dir)
     X_1000brains, Y_1000brains = load_crop_dataset("1000Gehirne", data_dir)
 
-    Y_ID1000 = balance_gender(Y_ID1000)
-    Y_eNKI = balance_gender(Y_eNKI)
-    Y_Camcan = balance_gender(Y_Camcan)
-    Y_1000brains = balance_gender(Y_1000brains)
+    Y_ID1000 = balance_gender(Y_ID1000, min_images)
+    Y_eNKI = balance_gender(Y_eNKI, min_images)
+    Y_Camcan = balance_gender(Y_Camcan, min_images)
+    Y_1000brains = balance_gender(Y_1000brains, min_images)
 
     Y = pd.concat([Y_ID1000, Y_eNKI, Y_Camcan, Y_1000brains])
 
@@ -135,5 +131,40 @@ def load_sex_age_imbalanced_data(data_dir):
 
     Y = Y["age"].to_numpy()
     X = X.to_numpy()
+
+    return X, Y, sites
+
+
+def load_eICU(data_dir):
+    # Load data (This data was obtained from the eICU dataset)
+    # please contact the authors for obtaining the subject ids to replicate
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname((os.path.abspath(__file__)))))             # noqa
+    data = pd.read_csv(project_root+data_dir + "equals_to_paper_data.csv",
+                       index_col=0)
+
+    return data
+
+
+def load_MRI_umbalanced_data(data_dir):
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))             # noqa
+    root_dir = project_root + data_dir
+    data_enki = pd.read_csv(root_dir+"X_eNKI_gender_imbalance_extreme.csv")
+    data_CamCAN = pd.read_csv(root_dir+"X_CamCAN_gender_imbalance_extreme.csv")
+
+    y_enki = pd.read_csv(root_dir+"Y_eNKI_gender_imbalance_extreme.csv")
+    y_enki["site"] = "eNKI"
+    y_CamCAN = pd.read_csv(root_dir+"Y_CamCAN_gender_imbalance_extreme.csv")
+    y_CamCAN["site"] = "CamCAN"
+
+    X = pd.concat([data_CamCAN, data_enki])
+    X.dropna(axis=1, inplace=True)
+    X = X.to_numpy()
+    target = pd.concat([y_CamCAN, y_enki])
+
+    target["site"].replace({"eNKI": 0, "CamCAN": 1}, inplace=True)
+    sites = target["site"].reset_index()
+    target["gender"].replace({"F": 0, "M": 1}, inplace=True)
+
+    Y = target["gender"]
 
     return X, Y, sites

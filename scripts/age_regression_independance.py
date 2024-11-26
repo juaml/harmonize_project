@@ -11,33 +11,13 @@ project_root = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(project_root)
 from lib.data_processing import compute_classification_results      # noqa
 from lib.data_loading import load_sex_age_balanced_data             # noqa
-# %%
 
 save_dir = "/output/age_regression/"
 data_dir = "/balanced/final_data_split/"
 
 
-from lib.data_loading import load_balanced_dataset, balance_gender, retain_images
-X_SALD, Y_SALD = load_balanced_dataset("SALD", data_dir)
-X_eNKI, Y_eNKI = load_balanced_dataset("eNKI", data_dir)
-X_Camcan, Y_Camcan = load_balanced_dataset("CamCAN", data_dir)
 # %%
-
-Y_SALD = balance_gender(Y_SALD)
-Y_eNKI = balance_gender(Y_eNKI)
-Y_Camcan = balance_gender(Y_Camcan)
-Y = pd.concat([Y_SALD, Y_eNKI, Y_Camcan])
-
-print(Y_SALD.shape)
-print(Y_eNKI.shape)
-print(Y_Camcan.shape)
-
-X = pd.concat([retain_images(X_SALD, Y_SALD),
-               retain_images(X_eNKI, Y_eNKI),
-               retain_images(X_Camcan, Y_Camcan)])
-print(X.shape)
-# %%
-X, Y, sites = load_sex_age_balanced_data(data_dir, min_images=59)
+X, Y, sites = load_sex_age_balanced_data(data_dir)
 # %%
 results = []
 

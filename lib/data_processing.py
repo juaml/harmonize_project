@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import os
 from sklearn.metrics import mean_absolute_error, r2_score
 from typing import List, Union
 from sklearn.metrics import f1_score, recall_score
@@ -76,7 +75,7 @@ def compute_classification_results(i_fold: int, model: str,
     return result
 
 
-def balance_gender(data, min_images=59):
+def balance_gender(data, min_images):
     # min images 59 was set after analizing the number of images offline
     male = data[data["gender"] == "M"]
     female = data[data["gender"] == "F"]
@@ -155,4 +154,3 @@ def filter_age_bins_with_qc(Y_data, age_bins, n_images, sampling):
             age_low = age_high
 
     return filter_index
-
