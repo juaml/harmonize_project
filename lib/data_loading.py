@@ -145,7 +145,7 @@ def load_eICU(data_dir):
     return data
 
 
-def load_MRI_umbalanced_data(data_dir):
+def load_MRI_sex_clf_site_target_dependance(data_dir):
     project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))             # noqa
     root_dir = project_root + data_dir
     data_enki = pd.read_csv(root_dir+"X_eNKI_gender_imbalance_extreme.csv")

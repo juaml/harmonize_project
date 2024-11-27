@@ -19,7 +19,7 @@ save_dir = "/output/age_regression/"
 data_dir = "/data/final_data_split/"
 
 # load site-target dependence data
-X, Y, sites = load_sex_age_imbalanced_data(data_dir)
+X, Y, sites = load_sex_age_imbalanced_data(data_dir, min_images=59)
 # %% Harmonize the whole dataset
 results = []
 
