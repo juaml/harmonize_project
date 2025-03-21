@@ -4,7 +4,7 @@ import sys
 from distutils.version import LooseVersion
 from pathlib import Path
 
-import juharmonize
+import prettyharmonize
 
 logger = logging.getLogger('HARMONIZE')
 logger.setLevel(logging.DEBUG)
@@ -93,7 +93,7 @@ def log_versions(tbox_path=None):
 
 
 def configure_logging(fname=None):
-    juharmonize.logging.configure_logging(level="INFO", fname=fname)
+    prettyharmonize.logging.configure_logging(level="INFO", fname=fname)
     finish_logging()
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
