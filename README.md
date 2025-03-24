@@ -12,14 +12,14 @@ This repository contains all scripts and resources needed to reproduce the exper
 
 **Paper Link**: [https://arxiv.org/abs/2410.19643](https://arxiv.org/abs/2410.19643)
 
-## Repository Structure
+**Repository Structure**:  
+`data/` - Directory for input datasets (user-provided)  
+`data_preprocessing/` - Scripts for raw data preprocessing to generate the site-target dependence and independence scenarios  
+`scripts/` - Main analysis scripts for all experiments 
+`output/` - Results will be stored here  
+`plots/` - Notebooks for figure generation  
+`pyproject.toml` - Environment configuration 
 
-- `data/`: Users must download the used public dataset and stored inside this folder.
-- `data_preprocessing/`: Contains Python scripts to preprocess the data.
-- `scripts/`: Contains Python scripts to run harmonization methods and apply PrettYharmonize.
-- `outcome/`: Directory where results from experiments are saved.
-- `plots/`: Jupyter notebooks with step-by-step examples for reproducing figures.
-- `pyproject.toml`: File to set up the environment with dependencies.
 
 ## Requirements
 
@@ -33,26 +33,34 @@ The environment can be installed using the `pyproject.toml` file in this reposit
    git clone https://github.com/juaml/harmonize_project.git
    cd harmonize_project
 
-2. **Install PrettyHarmonize:**
+2. **Create/activate virtual environment:**
+ 
+Linux/Mac: `python -m venv venv && source venv/bin/activate`  
+Windows: `python -m venv venv && venv\Scripts\activate`  
 
-   ```bash
-    pip install git+https://github.com/juaml/PrettYharmonize
+3. **Install dependencies:**
+ 
+`pip install .`  
+For development: `pip install -e .[dev]`
 
-3. **Download data**
+4. **Install PrettYharmonize:**  
+`pip install git+https://github.com/juaml/PrettYharmonize`  
 
-  Data must be downloaded by the user and stored in the respectively folders
+5. **Download data**
 
-4. **Pre-processing data**
+  Data must be downloaded by the user and stored in the respectively folders inside `data/`.
 
-  The pre processing of the data has to be made using the scripts conteined in `data_preprocessing/`
+6. **Pre-processing data**
 
-5. **Run scripts**
+  The pre processing of the data has to be made using the scripts conteined in `data_preprocessing/`.
 
-  The code for classification or regression in (in)dependence scenarios are stored in `scripts/`
+7. **Run scripts**
 
-6. **Plot**
+  The code for classification or regression in (in)dependence scenarios are stored in `scripts/`.
 
-For view results
+8. **Plot**
+
+You can replicate the figures from the results stored in `output/`.
 
 ## Citation
 ```bibtex
