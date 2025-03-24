@@ -15,7 +15,7 @@ from lib.data_loading import load_sex_age_balanced_data                         
 
 # %%
 save_dir = "/output/age_regression/"
-data_dir = "/balanced/final_data_split/"
+data_dir = "/data/MRI/independence/"
 
 
 X, Y, sites = load_sex_age_balanced_data(data_dir=data_dir)

@@ -11,7 +11,7 @@ sys.path.append(project_root)
 from lib.data_processing import compute_classification_results      # noqa
 from lib.data_loading import load_MRI_sex_clf_site_target_dependance               # noqa      
 
-data_dir = "/data/final_data_split/"
+data_dir = "/data/MRI/dependence/"
 save_dir = project_root + "output/sex_classification/"
 X, Y, sites = load_MRI_sex_clf_site_target_dependance(data_dir)
 clf = LogisticRegression()

@@ -13,7 +13,7 @@ from lib.data_processing import compute_classification_results      # noqa
 from lib.data_loading import load_sex_age_balanced_data             # noqa
 
 save_dir = "/output/age_regression/"
-data_dir = "/balanced/final_data_split/"
+data_dir = "/data/MRI/independence/"
 
 
 # %%

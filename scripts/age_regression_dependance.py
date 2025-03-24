@@ -16,7 +16,7 @@ from lib.data_loading import load_sex_age_imbalanced_data           # noqa
 
 save_dir = "/output/age_regression/"
 
-data_dir = "/data/final_data_split/"
+data_dir = "/data/MRI/dependence/"
 
 # load site-target dependence data
 X, Y, sites = load_sex_age_imbalanced_data(data_dir, min_images=59)

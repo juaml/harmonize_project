@@ -15,6 +15,7 @@ This repository contains all scripts and resources needed to reproduce the exper
 ## Repository Structure
 
 - `data/`: Users must download the used public dataset and stored inside this folder.
+- `data_preprocessing/`: Contains Python scripts to preprocess the data.
 - `scripts/`: Contains Python scripts to run harmonization methods and apply PrettYharmonize.
 - `outcome/`: Directory where results from experiments are saved.
 - `plots/`: Jupyter notebooks with step-by-step examples for reproducing figures.
@@ -22,7 +23,7 @@ This repository contains all scripts and resources needed to reproduce the exper
 
 ## Requirements
 
-The environment can be installed using the `pyproject.toml` file in this repository. This project requires [Poetry](https://python-poetry.org/) for managing dependencies.
+The environment can be installed using the `pyproject.toml` file in this repository.
 
 ## Installation
 
@@ -32,7 +33,26 @@ The environment can be installed using the `pyproject.toml` file in this reposit
    git clone https://github.com/juaml/harmonize_project.git
    cd harmonize_project
 
+2. **Install PrettyHarmonize:**
 
+   ```bash
+    pip install git+https://github.com/juaml/PrettYharmonize
+
+3. **Download data**
+
+  Data must be downloaded by the user and stored in the respectively folders
+
+4. **Pre-processing data**
+
+  The pre processing of the data has to be made using the scripts conteined in `data_preprocessing/`
+
+5. **Run scripts**
+
+  The code for classification or regression in (in)dependence scenarios are stored in `scripts/`
+
+6. **Plot**
+
+For view results
 
 ## Citation
 ```bibtex

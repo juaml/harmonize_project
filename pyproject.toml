@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "harmonization_project"
+version = "0.1.0"
+description = "Environment to replicate the harmonization results"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [
+    {name = "Nicolás Nieto", email = "n.nieto@fz-juelich.de"},
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+
+[project.urls]
+Repository = "https://github.com/juaml/harmonize_project"
+Documentation = "https://github.com/juaml/harmonize_project#readme"
+Issues = "https://github.com/juaml/harmonize_project/issues"
+
+[project.optional-dependencies]
+# Group related dependencies
+
+ml = [
+    "scikit-learn==1.6.1",
+    "scipy==1.9.1",
+    "pandas==2.1.4",
+    "statsmodels==0.13.2",
+    "julearn==0.3.4",
+]
+viz = [
+    "matplotlib==3.9.2",
+    "seaborn==0.13.2",
+]
+
+[project.dependencies]
+# Core dependencies
+python-dateutil = ">=2.8.2"
+numpy = ">=1.24.4"
+pandas = ">=2.1.4"
+scipy = ">=1.9.1"
+scikit-learn = ">=1.6.1"
+neuroHarmonize = ">=2.1.0"
+
+# Other important dependencies grouped by functionality
+# Data handling
+h5py = ">=3.7.0"
+nibabel = ">=4.0.2"
+nilearn = ">=0.10.1"
+openpyxl = ">=3.0.10"
+
+# Visualization
+matplotlib = ">=3.9.2"
+seaborn = ">=0.13.2"
+matplotlib-inline = ">=0.1.6"
+
+# Utilities
+tqdm = ">=4.65.0"
+joblib = ">=1.2.0"
+packaging = ">=21.3"
