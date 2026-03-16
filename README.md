@@ -10,7 +10,7 @@ It is currently being developed and maintained at the [Applied Machine Learning]
 
 This repository contains all scripts and resources needed to reproduce the experiments presented in the paper "Impact of Leakage on Data Harmonization in Machine Learning Pipelines in Class Imbalance Across Sites." The paper explores the effectiveness of data harmonization methods, particularly in scenarios where class balance differs across data collection sites, and proposes the **PrettYharmonize** approach to address data leakage issues. Using this repository, researchers can replicate the study results, perform experiments on synthetic and real-world datasets, and validate the PrettYharmonize pipeline.
 
-**Paper Link**: [https://arxiv.org/abs/2410.19643](https://arxiv.org/abs/2410.19643)
+**Paper Link**: [Impact of leakage on data harmonization in machine learning pipelines in class imbalance across sites]([https://arxiv.org/abs/2410.19643](https://doi.org/10.1016/j.neucom.2026.133146))
 
 **Repository Structure**:  
 `data/` - Directory for input datasets (user-provided)  
@@ -65,11 +65,13 @@ You can replicate the figures from the results stored in `output/`.
 ## Citation
 ```bibtex
 If you use PrettYharmonize in your work, please cite the following:
-@article{nieto2024impact,
-  title={Impact of Leakage on Data Harmonization in Machine Learning Pipelines in Class Imbalance Across Sites},
+@article{nieto2026impact,
+  title={Impact of leakage on data harmonization in machine learning pipelines in class imbalance across sites.},
   author={Nieto, Nicol{\'a}s and Eickhoff, Simon B and Jung, Christian and Reuter, Martin and Diers, Kersten and Kelm, Malte and Lichtenberg, Artur and Raimondo, Federico and Patil, Kaustubh R},
-  journal={arXiv preprint arXiv:2410.19643},
-  year={2024}
+  journal={Neurocomputing},
+  pages={133146},
+  year={2026},
+  publisher={Elsevier}
 }
 ```
 
